@@ -1,1 +1,2 @@
 com\dvcs\git\object\CommitObjectTest.class
+com\dvcs\git\object\SHA256UtilTest.class
