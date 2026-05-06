@@ -1,16 +1,16 @@
 # Tasks — DVCS Platform
 
-- [ ] 1. Project Scaffolding & Infrastructure Setup
+- [x] 1. Project Scaffolding & Infrastructure Setup
   - **Requirement**: Req 1–24 (cross-cutting infrastructure)
   - **Design section**: System Architecture / Infrastructure Configuration
   - Sub-tasks:
-    - [ ] 1.1 Create Maven multi-module `pom.xml` with parent POM and modules: `backend-core`, `backend-api`, `backend-git`, `backend-diff`, `backend-pr`, `backend-issue`, `backend-webhook`, `backend-pipeline`, `backend-notification`, `backend-search`
-    - [ ] 1.2 Scaffold Vite + React + TypeScript project under `frontend/` with TailwindCSS, React Router v6, and `@tanstack/react-query` dependencies in `package.json`
-    - [ ] 1.3 Write `docker-compose.yml` with five services: `postgres` (postgres:16-alpine), `redis` (redis:7-alpine), `minio` (minio/minio), `backend`, `frontend` — each with healthchecks and named volumes
-    - [ ] 1.4 Write `backend/Dockerfile` as a two-stage build: stage 1 uses `eclipse-temurin:21-jdk-alpine` to run `./mvnw package -DskipTests`; stage 2 uses `gcr.io/distroless/java21-debian12` to run the JAR
-    - [ ] 1.5 Write `frontend/Dockerfile` as a two-stage build: stage 1 uses `node:20-alpine` to run `npm ci && npm run build`; stage 2 uses `nginx:alpine` to serve `/app/dist`
-    - [ ] 1.6 Write `frontend/nginx.conf` with reverse-proxy rules (`/api/*` → `backend:8080`, `/ws/*` → `backend:8080` with WebSocket upgrade), gzip compression, and SPA fallback (`try_files $uri /index.html`)
-    - [ ] 1.7 Write `.env.example` documenting all required environment variables: `POSTGRES_*`, `REDIS_*`, `MINIO_*`, `JWT_SECRET`, `JWT_EXPIRY_SECONDS`, `REFRESH_TOKEN_EXPIRY_DAYS`, `STORAGE_BACKEND`, `STORAGE_ROOT`, `S3_ENDPOINT`, `S3_BUCKET`, `CORS_ALLOWED_ORIGINS`
+    - [x] 1.1 Create Maven multi-module `pom.xml` with parent POM and modules: `backend-core`, `backend-api`, `backend-git`, `backend-diff`, `backend-pr`, `backend-issue`, `backend-webhook`, `backend-pipeline`, `backend-notification`, `backend-search`
+    - [x] 1.2 Scaffold Vite + React + TypeScript project under `frontend/` with TailwindCSS, React Router v6, and `@tanstack/react-query` dependencies in `package.json`
+    - [x] 1.3 Write `docker-compose.yml` with five services: `postgres` (postgres:16-alpine), `redis` (redis:7-alpine), `minio` (minio/minio), `backend`, `frontend` — each with healthchecks and named volumes
+    - [x] 1.4 Write `backend/Dockerfile` as a two-stage build: stage 1 uses `eclipse-temurin:21-jdk-alpine` to run `./mvnw package -DskipTests`; stage 2 uses `gcr.io/distroless/java21-debian12` to run the JAR
+    - [x] 1.5 Write `frontend/Dockerfile` as a two-stage build: stage 1 uses `node:20-alpine` to run `npm ci && npm run build`; stage 2 uses `nginx:alpine` to serve `/app/dist`
+    - [x] 1.6 Write `frontend/nginx.conf` with reverse-proxy rules (`/api/*` → `backend:8080`, `/ws/*` → `backend:8080` with WebSocket upgrade), gzip compression, and SPA fallback (`try_files $uri /index.html`)
+    - [x] 1.7 Write `.env.example` documenting all required environment variables: `POSTGRES_*`, `REDIS_*`, `MINIO_*`, `JWT_SECRET`, `JWT_EXPIRY_SECONDS`, `REFRESH_TOKEN_EXPIRY_DAYS`, `STORAGE_BACKEND`, `STORAGE_ROOT`, `S3_ENDPOINT`, `S3_BUCKET`, `CORS_ALLOWED_ORIGINS`
 
 - [ ] 2. Database Schema & Migrations (Flyway)
   - **Requirement**: Req 1–17 (all entities)
