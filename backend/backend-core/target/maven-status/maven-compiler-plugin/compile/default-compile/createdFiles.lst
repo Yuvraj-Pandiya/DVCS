@@ -1,4 +1,16 @@
 com\dvcs\auth\repository\UserRepository.class
 com\dvcs\package-info.class
 com\dvcs\auth\domain\User$UserBuilder.class
+com\dvcs\auth\exception\ConflictException.class
+com\dvcs\auth\service\JwtUtil.class
+com\dvcs\auth\dto\LoginRequest.class
+com\dvcs\auth\service\AuthService.class
+com\dvcs\auth\dto\AuthResponse.class
+com\dvcs\auth\service\JwtUtilImpl.class
+com\dvcs\auth\exception\UnauthorizedException.class
 com\dvcs\auth\domain\User.class
+com\dvcs\auth\dto\RegisterRequest.class
+com\dvcs\auth\domain\RefreshToken$RefreshTokenBuilder.class
+com\dvcs\common\config\SecurityConfig.class
+com\dvcs\auth\domain\RefreshToken.class
+com\dvcs\auth\repository\RefreshTokenRepository.class

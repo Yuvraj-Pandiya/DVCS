@@ -1,3 +1,14 @@
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\config\SecurityConfig.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\User.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\UserRepository.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\UnauthorizedException.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\JwtUtil.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\LoginRequest.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\RefreshToken.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\ConflictException.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\JwtUtilImpl.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\AuthService.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\package-info.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\AuthResponse.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\RefreshTokenRepository.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\RegisterRequest.java

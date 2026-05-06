@@ -26,7 +26,7 @@
   - Sub-tasks:
     - [x] 3.1 Create `User` JPA entity (`com.dvcs.auth.domain.User`) mapping the `users` table with fields: `id`, `username`, `email`, `passwordHash`, `avatarUrl`, `bio`, `createdAt`
     - [x] 3.2 Create `UserRepository` extending `JpaRepository<User, Long>` with `findByUsername(String)` and `findByEmail(String)` query methods
-    - [ ] 3.3 Implement `AuthService` with `register(RegisterRequest)` (bcrypt password, save user, return 201), `login(LoginRequest)` (verify bcrypt, issue JWT + refresh token), and `refresh(String refreshToken)` (rotate refresh token, return new access token)
+    - [x] 3.3 Implement `AuthService` with `register(RegisterRequest)` (bcrypt password, save user, return 201), `login(LoginRequest)` (verify bcrypt, issue JWT + refresh token), and `refresh(String refreshToken)` (rotate refresh token, return new access token)
     - [ ] 3.4 Implement `JwtUtil` using `io.jsonwebtoken` (JJWT): `generateAccessToken(User)` (HS256, 15-min expiry, claims: sub/username/roles), `generateRefreshToken(User)` (30-day expiry), `validateToken(String)`, `extractUserId(String)`, `extractUsername(String)`
     - [ ] 3.5 Implement `JwtAuthenticationFilter` extending `OncePerRequestFilter`: extract `Authorization: Bearer` header, call `JwtUtil.validateToken`, set `SecurityContextHolder` authentication
     - [ ] 3.6 Implement `PersonalTokenFilter` extending `OncePerRequestFilter`: fallback after JWT filter, look up `personal_tokens` by hashed token value, enforce scopes, set authentication
