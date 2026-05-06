@@ -1,3 +1,4 @@
-com\dvcs\git\package-info.class
+com\dvcs\git\object\BlobObject.class
 com\dvcs\git\object\GitObject.class
 com\dvcs\git\object\ObjectType.class
+com\dvcs\git\package-info.class

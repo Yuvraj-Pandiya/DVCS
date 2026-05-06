@@ -42,7 +42,7 @@
   - Sub-tasks:
     - [x] 4.1 Create `ObjectType` enum with values `BLOB`, `TREE`, `COMMIT` in `com.dvcs.git.object`
     - [x] 4.2 Create abstract `GitObject` class with fields `sha` (String, 64-char hex), `type` (ObjectType), and abstract method `serialize(): byte[]`
-    - [ ] 4.3 Implement `BlobObject extends GitObject`: constructor accepts `byte[] content`; `serialize()` returns `"blob {size}\0".getBytes() + content`
+    - [x] 4.3 Implement `BlobObject extends GitObject`: constructor accepts `byte[] content`; `serialize()` returns `"blob {size}\0".getBytes() + content`
     - [ ] 4.4 Create `TreeEntry` record with fields `mode` (String), `name` (String), `sha` (String); implement `TreeObject extends GitObject`: constructor accepts `List<TreeEntry>`; `serialize()` encodes each entry as `"{mode} {name}\0{20-byte-binary-sha}"` and wraps with `"tree {size}\0"`
     - [ ] 4.5 Implement `CommitObject extends GitObject`: fields `treeSha`, `parentShas` (List), `authorName`, `authorEmail`, `authorTimestamp`, `committerName`, `committerEmail`, `committerTimestamp`, `message`; `serialize()` produces the canonical commit header format
     - [ ] 4.6 Implement `SHA256Util.computeHex(byte[])` using `MessageDigest.getInstance("SHA-256")` returning lowercase hex string; add `verifyIntegrity(String expectedSha, byte[] data)` throwing `IntegrityException` on mismatch
