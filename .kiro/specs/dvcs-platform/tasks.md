@@ -34,7 +34,7 @@
     - [x] 3.8 Create `PersonalToken` JPA entity mapping `personal_tokens` table; create `PersonalTokenRepository`; implement `PersonalTokenService.createToken(userId, name, scopes, expiresAt)` returning raw token once and storing only its SHA-256 hash
     - [x] 3.9 Implement `AuthController` with `POST /api/auth/register`, `POST /api/auth/login` (sets `refreshToken` HttpOnly cookie), `POST /api/auth/refresh` (reads cookie, rotates token)
     - [x] 3.10 Implement `SecurityConfig` (`@Configuration @EnableWebSecurity`): define filter chain ordering (RateLimitFilter → JwtAuthenticationFilter → PersonalTokenFilter), disable CSRF for `/api/**`, configure CORS from `CORS_ALLOWED_ORIGINS` env var, permit `/api/auth/**` and public repo reads without authentication
-    - [-] 3.11 Write `AuthServiceTest` (JUnit 5 + Mockito) covering: register success returns saved user, register with duplicate username throws `ConflictException`, login with valid credentials returns tokens, login with wrong password throws `UnauthorizedException`, refresh with valid token rotates and returns new tokens
+    - [x] 3.11 Write `AuthServiceTest` (JUnit 5 + Mockito) covering: register success returns saved user, register with duplicate username throws `ConflictException`, login with valid credentials returns tokens, login with wrong password throws `UnauthorizedException`, refresh with valid token rotates and returns new tokens
 
 - [ ] 4. Git Object Storage Engine
   - **Requirement**: Req 4, Req 7, Req 19
