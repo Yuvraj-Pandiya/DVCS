@@ -48,7 +48,7 @@
     - [x] 4.6 Implement `SHA256Util.computeHex(byte[])` using `MessageDigest.getInstance("SHA-256")` returning lowercase hex string; add `verifyIntegrity(String expectedSha, byte[] data)` throwing `IntegrityException` on mismatch
     - [x] 4.7 Define `ObjectStoreBackend` interface with methods: `write(String repoId, String sha, byte[] data)`, `read(String repoId, String sha): byte[]`, `exists(String repoId, String sha): boolean`, `delete(String repoId, String sha)`, `size(String repoId, String sha): long`
     - [x] 4.8 Implement `LocalFsBackend implements ObjectStoreBackend`: stores files at `${storage.root}/{repoId}/objects/{sha[0..1]}/{sha[2..]}` using `java.nio.file`; `read` throws `ObjectNotFoundException` if file absent
-    - [ ] 4.9 Implement `S3Backend implements ObjectStoreBackend`: uses AWS SDK v2 `S3Client` configured with MinIO endpoint URL; key layout mirrors `LocalFsBackend`; `write` calls `PutObjectRequest`, `read` calls `GetObjectRequest`
+    - [x] 4.9 Implement `S3Backend implements ObjectStoreBackend`: uses AWS SDK v2 `S3Client` configured with MinIO endpoint URL; key layout mirrors `LocalFsBackend`; `write` calls `PutObjectRequest`, `read` calls `GetObjectRequest`
     - [ ] 4.10 Implement `ObjectStoreService`: facade injecting `ObjectStoreBackend` (selected by `STORAGE_BACKEND` env var); `writeObject(repoId, gitObject)` computes SHA, calls backend write, caches raw bytes in Redis at key `blob:{repoId}:{sha}` with TTL 3600s; `readObject(repoId, sha)` checks Redis first, falls back to backend
     - [ ] 4.11 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write then read returns identical bytes, SHA mismatch on read throws `IntegrityException`, path traversal in SHA rejected with `IllegalArgumentException`
 
