@@ -1,2 +1,3 @@
 com\dvcs\git\package-info.class
+com\dvcs\git\object\GitObject.class
 com\dvcs\git\object\ObjectType.class
