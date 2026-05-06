@@ -61,15 +61,15 @@
     - [x] 5.3 Implement `DeltaCompressor`: `compress(byte[] base, byte[] target): byte[]` produces a simple copy/insert delta instruction stream; `apply(byte[] base, byte[] delta): byte[]` reconstructs target from base + delta
     - [x] 5.4 Write `PackFileCodecTest` (JUnit 5): encode 1 blob → decode returns same blob bytes, encode 5 mixed objects → decode returns all 5 with correct SHAs, tampered trailer byte causes `PackIntegrityException`
 
-- [ ] 6. HTTP Smart Git Transport
+- [x] 6. HTTP Smart Git Transport
   - **Requirement**: Req 6, Req 5, Req 16, Req 19
   - **Design section**: HTTP Smart Git Transport
   - Sub-tasks:
-    - [ ] 6.1 Implement `GitTransportController` (`@RestController @RequestMapping("/api/git/{owner}/{repo}")`): `GET /info/refs` dispatches to `UploadPackService` or `ReceivePackService` based on `service` query param; `POST /git-upload-pack`; `POST /git-receive-pack`
-    - [ ] 6.2 Implement `UploadPackService.advertiseRefs(repoId): byte[]` returning pkt-line encoded ref list; `UploadPackService.uploadPack(repoId, InputStream want/have): InputStream` performing want/have negotiation and returning pack stream via `PackFileEncoder`
-    - [ ] 6.3 Implement `ReceivePackService.advertiseRefs(repoId): byte[]`; `ReceivePackService.receivePack(repoId, userId, InputStream)`: parse pkt-line ref updates, check branch protection, call `PackFileDecoder`, write objects via `ObjectStoreService`, update `branches.head_sha`, insert `commits_meta` rows, invalidate Redis cache keys (`repo:{id}:branches`, `repo:{id}:commits:{branch}:*` via SCAN+DEL), publish to Redis channel `events:{repoId}`, trigger async webhook delivery, trigger async `PipelineEngine`
-    - [ ] 6.4 Implement `RepoAccessGuard`: `@Component` with methods `canRead(Authentication, String owner, String repo): boolean` and `canWrite(...)` checking `collaborators` table; annotate controller methods with `@PreAuthorize("@repoAccessGuard.canWrite(...)")`
-    - [ ] 6.5 Write `GitTransportIT` (Testcontainers + real `git` CLI via `ProcessBuilder`): start postgres+redis containers, create repo via API, `git clone http://localhost/api/git/{owner}/{repo}`, add file, `git push`, assert branch `head_sha` updated in DB
+    - [x] 6.1 Implement `GitTransportController` (`@RestController @RequestMapping("/api/git/{owner}/{repo}")`): `GET /info/refs` dispatches to `UploadPackService` or `ReceivePackService` based on `service` query param; `POST /git-upload-pack`; `POST /git-receive-pack`
+    - [x] 6.2 Implement `UploadPackService.advertiseRefs(repoId): byte[]` returning pkt-line encoded ref list; `UploadPackService.uploadPack(repoId, InputStream want/have): InputStream` performing want/have negotiation and returning pack stream via `PackFileEncoder`
+    - [x] 6.3 Implement `ReceivePackService.advertiseRefs(repoId): byte[]`; `ReceivePackService.receivePack(repoId, userId, InputStream)`: parse pkt-line ref updates, check branch protection, call `PackFileDecoder`, write objects via `ObjectStoreService`, update `branches.head_sha`, insert `commits_meta` rows, invalidate Redis cache keys (`repo:{id}:branches`, `repo:{id}:commits:{branch}:*` via SCAN+DEL), publish to Redis channel `events:{repoId}`, trigger async webhook delivery, trigger async `PipelineEngine`
+    - [x] 6.4 Implement `RepoAccessGuard`: `@Component` with methods `canRead(Authentication, String owner, String repo): boolean` and `canWrite(...)` checking `collaborators` table; annotate controller methods with `@PreAuthorize("@repoAccessGuard.canWrite(...)")`
+    - [x] 6.5 Write `GitTransportIT` (Testcontainers + real `git` CLI via `ProcessBuilder`): start postgres+redis containers, create repo via API, `git clone http://localhost/api/git/{owner}/{repo}`, add file, `git push`, assert branch `head_sha` updated in DB
 
 - [ ] 7. Repository, Branch & Commit REST APIs
   - **Requirement**: Req 3, Req 5, Req 8, Req 16, Req 19

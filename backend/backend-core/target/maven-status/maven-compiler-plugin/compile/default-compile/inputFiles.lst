@@ -1,6 +1,9 @@
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\config\SecurityConfig.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\domain\Collaborator.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\controller\AuthController.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\PersonalToken.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\domain\CollaboratorId.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\domain\Repository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\PersonalTokenService.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\UnauthorizedException.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\JwtUtil.java
@@ -13,13 +16,16 @@ X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\PersonalTokenInfo.j
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\RefreshTokenRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\RegisterRequest.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\PersonalTokenRepository.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\RepoAccessGuard.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\User.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\UserRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\JwtAuthenticationFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\PersonalTokenFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\JwtUtilImpl.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\SshKeyService.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\repository\CollaboratorRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\SshKeyRepository.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\repository\RepoRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\package-info.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\PersonalTokenResponse.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\AuthResponse.java
