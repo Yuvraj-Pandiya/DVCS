@@ -17,7 +17,7 @@
   - **Design section**: Database Schema
   - Sub-tasks:
     - [x] 2.1 Write `src/main/resources/db/migration/V1__init.sql` creating all 18 tables (`users`, `repositories`, `collaborators`, `git_objects`, `branches`, `commits_meta`, `pull_requests`, `pr_reviews`, `pr_comments`, `issues`, `issue_comments`, `labels`, `issue_labels`, `webhooks`, `notifications`, `ssh_keys`, `personal_tokens`, `audit_logs`, `pipeline_runs`) with FK constraints, CHECK constraints, and all indexes as specified in the DDL
-    - [-] 2.2 Write `src/main/resources/db/migration/V2__seed_data.sql` inserting default label colors (`bug`, `enhancement`, `documentation`, `question`) for use in tests and demos
+    - [x] 2.2 Write `src/main/resources/db/migration/V2__seed_data.sql` inserting default label colors (`bug`, `enhancement`, `documentation`, `question`) for use in tests and demos
     - [ ] 2.3 Add Flyway dependency to `pom.xml` and configure `spring.flyway.locations`, `spring.flyway.baseline-on-migrate`, and datasource properties in `src/main/resources/application.yml`
 
 - [ ] 3. Auth Module
