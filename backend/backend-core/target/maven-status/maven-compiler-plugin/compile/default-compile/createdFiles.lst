@@ -24,6 +24,7 @@ com\dvcs\auth\service\AuthService.class
 com\dvcs\auth\dto\PersonalTokenResponse.class
 com\dvcs\auth\domain\PersonalToken.class
 com\dvcs\auth\exception\UnauthorizedException.class
+com\dvcs\common\security\RateLimitFilter.class
 com\dvcs\auth\repository\SshKeyRepository.class
 com\dvcs\auth\domain\SshKey$SshKeyBuilder.class
 com\dvcs\auth\domain\RefreshToken$RefreshTokenBuilder.class

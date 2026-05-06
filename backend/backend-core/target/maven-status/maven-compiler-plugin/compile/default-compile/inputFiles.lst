@@ -8,6 +8,7 @@ X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\LoginRequest.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\RefreshToken.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\ConflictException.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\AuthService.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\RateLimitFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\PersonalTokenInfo.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\RefreshTokenRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\RegisterRequest.java
