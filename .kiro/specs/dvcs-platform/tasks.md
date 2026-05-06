@@ -28,7 +28,7 @@
     - [x] 3.2 Create `UserRepository` extending `JpaRepository<User, Long>` with `findByUsername(String)` and `findByEmail(String)` query methods
     - [x] 3.3 Implement `AuthService` with `register(RegisterRequest)` (bcrypt password, save user, return 201), `login(LoginRequest)` (verify bcrypt, issue JWT + refresh token), and `refresh(String refreshToken)` (rotate refresh token, return new access token)
     - [x] 3.4 Implement `JwtUtil` using `io.jsonwebtoken` (JJWT): `generateAccessToken(User)` (HS256, 15-min expiry, claims: sub/username/roles), `generateRefreshToken(User)` (30-day expiry), `validateToken(String)`, `extractUserId(String)`, `extractUsername(String)`
-    - [ ] 3.5 Implement `JwtAuthenticationFilter` extending `OncePerRequestFilter`: extract `Authorization: Bearer` header, call `JwtUtil.validateToken`, set `SecurityContextHolder` authentication
+    - [x] 3.5 Implement `JwtAuthenticationFilter` extending `OncePerRequestFilter`: extract `Authorization: Bearer` header, call `JwtUtil.validateToken`, set `SecurityContextHolder` authentication
     - [ ] 3.6 Implement `PersonalTokenFilter` extending `OncePerRequestFilter`: fallback after JWT filter, look up `personal_tokens` by hashed token value, enforce scopes, set authentication
     - [ ] 3.7 Create `SshKey` JPA entity mapping `ssh_keys` table; create `SshKeyRepository`; implement `SshKeyService.addKey(userId, title, publicKey)` computing SHA-256 fingerprint via `MessageDigest`
     - [ ] 3.8 Create `PersonalToken` JPA entity mapping `personal_tokens` table; create `PersonalTokenRepository`; implement `PersonalTokenService.createToken(userId, name, scopes, expiresAt)` returning raw token once and storing only its SHA-256 hash
