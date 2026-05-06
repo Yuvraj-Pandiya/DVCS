@@ -52,14 +52,14 @@
     - [x] 4.10 Implement `ObjectStoreService`: facade injecting `ObjectStoreBackend` (selected by `STORAGE_BACKEND` env var); `writeObject(repoId, gitObject)` computes SHA, calls backend write, caches raw bytes in Redis at key `blob:{repoId}:{sha}` with TTL 3600s; `readObject(repoId, sha)` checks Redis first, falls back to backend
     - [x] 4.11 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write then read returns identical bytes, SHA mismatch on read throws `IntegrityException`, path traversal in SHA rejected with `IllegalArgumentException`
 
-- [ ] 5. Pack-File Codec
+- [x] 5. Pack-File Codec
   - **Requirement**: Req 4, Req 6
   - **Design section**: Pack-File Transfer Format
   - Sub-tasks:
-    - [ ] 5.1 Implement `PackFileEncoder`: constructor accepts `ObjectStoreService`; `encode(String repoId, List<String> shas): byte[]` writes PACK magic bytes + version (4 bytes, value 2) + object count (4 bytes), then for each SHA writes type+size in variable-length encoding followed by zlib-deflated object bytes, then appends SHA-256 of all preceding bytes as 32-byte trailer
-    - [ ] 5.2 Implement `PackFileDecoder`: `decode(InputStream packStream): List<RawObject>` reads and validates PACK header, parses each object's type+size header, inflates zlib data, verifies SHA-256 trailer; returns list of `RawObject(type, sha, data)`
-    - [ ] 5.3 Implement `DeltaCompressor`: `compress(byte[] base, byte[] target): byte[]` produces a simple copy/insert delta instruction stream; `apply(byte[] base, byte[] delta): byte[]` reconstructs target from base + delta
-    - [ ] 5.4 Write `PackFileCodecTest` (JUnit 5): encode 1 blob → decode returns same blob bytes, encode 5 mixed objects → decode returns all 5 with correct SHAs, tampered trailer byte causes `PackIntegrityException`
+    - [x] 5.1 Implement `PackFileEncoder`: constructor accepts `ObjectStoreService`; `encode(String repoId, List<String> shas): byte[]` writes PACK magic bytes + version (4 bytes, value 2) + object count (4 bytes), then for each SHA writes type+size in variable-length encoding followed by zlib-deflated object bytes, then appends SHA-256 of all preceding bytes as 32-byte trailer
+    - [x] 5.2 Implement `PackFileDecoder`: `decode(InputStream packStream): List<RawObject>` reads and validates PACK header, parses each object's type+size header, inflates zlib data, verifies SHA-256 trailer; returns list of `RawObject(type, sha, data)`
+    - [x] 5.3 Implement `DeltaCompressor`: `compress(byte[] base, byte[] target): byte[]` produces a simple copy/insert delta instruction stream; `apply(byte[] base, byte[] delta): byte[]` reconstructs target from base + delta
+    - [x] 5.4 Write `PackFileCodecTest` (JUnit 5): encode 1 blob → decode returns same blob bytes, encode 5 mixed objects → decode returns all 5 with correct SHAs, tampered trailer byte causes `PackIntegrityException`
 
 - [ ] 6. HTTP Smart Git Transport
   - **Requirement**: Req 6, Req 5, Req 16, Req 19
