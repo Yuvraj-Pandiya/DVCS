@@ -5,8 +5,10 @@ com\dvcs\common\security\PersonalTokenFilter.class
 com\dvcs\auth\dto\AuthResponse.class
 com\dvcs\auth\service\JwtUtilImpl.class
 com\dvcs\auth\domain\User.class
+com\dvcs\auth\dto\PersonalTokenInfo.class
 com\dvcs\auth\dto\RegisterRequest.class
 com\dvcs\common\security\JwtAuthenticationFilter.class
+com\dvcs\auth\service\PersonalTokenService.class
 com\dvcs\common\config\SecurityConfig.class
 com\dvcs\auth\domain\RefreshToken.class
 com\dvcs\auth\service\SshKeyService.class
@@ -18,6 +20,7 @@ com\dvcs\auth\repository\UserRepository.class
 com\dvcs\auth\domain\User$UserBuilder.class
 com\dvcs\auth\dto\LoginRequest.class
 com\dvcs\auth\service\AuthService.class
+com\dvcs\auth\dto\PersonalTokenResponse.class
 com\dvcs\auth\domain\PersonalToken.class
 com\dvcs\auth\exception\UnauthorizedException.class
 com\dvcs\auth\repository\SshKeyRepository.class
