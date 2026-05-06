@@ -1,0 +1,4 @@
+com\dvcs\auth\repository\UserRepository.class
+com\dvcs\package-info.class
+com\dvcs\auth\domain\User$UserBuilder.class
+com\dvcs\auth\domain\User.class
