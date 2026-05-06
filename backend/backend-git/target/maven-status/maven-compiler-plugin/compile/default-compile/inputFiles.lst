@@ -1,6 +1,7 @@
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\BlobObject.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\SHA256Util.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\package-info.java
+X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\storage\LocalFsBackend.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\TreeEntry.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\IntegrityException.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\ObjectType.java

@@ -1,6 +1,7 @@
 com\dvcs\git\object\BlobObject.class
 com\dvcs\git\storage\ObjectNotFoundException.class
 com\dvcs\git\object\ObjectType.class
+com\dvcs\git\storage\LocalFsBackend.class
 com\dvcs\git\package-info.class
 com\dvcs\git\object\IntegrityException.class
 com\dvcs\git\object\CommitObject.class
