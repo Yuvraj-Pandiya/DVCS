@@ -6,4 +6,6 @@ X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\IntegrityException
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\ObjectType.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\CommitObject.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\TreeObject.java
+X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\storage\ObjectStoreBackend.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\object\GitObject.java
+X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\storage\ObjectNotFoundException.java

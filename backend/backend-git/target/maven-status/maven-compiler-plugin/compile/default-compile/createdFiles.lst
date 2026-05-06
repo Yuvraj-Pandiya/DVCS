@@ -1,9 +1,11 @@
 com\dvcs\git\object\BlobObject.class
+com\dvcs\git\storage\ObjectNotFoundException.class
 com\dvcs\git\object\ObjectType.class
 com\dvcs\git\package-info.class
 com\dvcs\git\object\IntegrityException.class
 com\dvcs\git\object\CommitObject.class
 com\dvcs\git\object\GitObject.class
+com\dvcs\git\storage\ObjectStoreBackend.class
 com\dvcs\git\object\SHA256Util.class
 com\dvcs\git\object\TreeObject.class
 com\dvcs\git\object\TreeEntry.class
