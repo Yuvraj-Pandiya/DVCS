@@ -1,7 +1,11 @@
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\config\SecurityConfig.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\PersonalTokenRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\User.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\UserRepository.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\PersonalToken.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\JwtAuthenticationFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\UnauthorizedException.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\PersonalTokenFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\JwtUtil.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\dto\LoginRequest.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\RefreshToken.java
