@@ -50,7 +50,7 @@
     - [x] 4.8 Implement `LocalFsBackend implements ObjectStoreBackend`: stores files at `${storage.root}/{repoId}/objects/{sha[0..1]}/{sha[2..]}` using `java.nio.file`; `read` throws `ObjectNotFoundException` if file absent
     - [x] 4.9 Implement `S3Backend implements ObjectStoreBackend`: uses AWS SDK v2 `S3Client` configured with MinIO endpoint URL; key layout mirrors `LocalFsBackend`; `write` calls `PutObjectRequest`, `read` calls `GetObjectRequest`
     - [x] 4.10 Implement `ObjectStoreService`: facade injecting `ObjectStoreBackend` (selected by `STORAGE_BACKEND` env var); `writeObject(repoId, gitObject)` computes SHA, calls backend write, caches raw bytes in Redis at key `blob:{repoId}:{sha}` with TTL 3600s; `readObject(repoId, sha)` checks Redis first, falls back to backend
-    - [-] 4.11 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write then read returns identical bytes, SHA mismatch on read throws `IntegrityException`, path traversal in SHA rejected with `IllegalArgumentException`
+    - [x] 4.11 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write then read returns identical bytes, SHA mismatch on read throws `IntegrityException`, path traversal in SHA rejected with `IllegalArgumentException`
 
 - [ ] 5. Pack-File Codec
   - **Requirement**: Req 4, Req 6
