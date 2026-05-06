@@ -6,6 +6,7 @@ com\dvcs\git\object\IntegrityException.class
 com\dvcs\git\object\CommitObject.class
 com\dvcs\git\storage\LocalFsBackend.class
 com\dvcs\git\package-info.class
+com\dvcs\git\storage\ObjectStoreService.class
 com\dvcs\git\object\GitObject.class
 com\dvcs\git\storage\ObjectStoreBackend.class
 com\dvcs\git\object\SHA256Util.class

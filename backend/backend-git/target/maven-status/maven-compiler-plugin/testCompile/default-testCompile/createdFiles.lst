@@ -1,0 +1,3 @@
+com\dvcs\git\object\CommitObjectTest.class
+com\dvcs\git\object\SHA256UtilTest.class
+com\dvcs\git\storage\ObjectStoreServiceTest.class
