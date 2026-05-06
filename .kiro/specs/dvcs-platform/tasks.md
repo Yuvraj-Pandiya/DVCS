@@ -1,0 +1,271 @@
+# Tasks — DVCS Platform
+
+- [ ] 1. Project Scaffolding & Infrastructure Setup
+  - **Requirement**: Req 1–24 (cross-cutting infrastructure)
+  - **Design section**: System Architecture / Infrastructure Configuration
+  - Sub-tasks:
+    - [ ] 1.1 Create Maven multi-module `pom.xml` with parent POM and modules: `backend-core`, `backend-api`, `backend-git`, `backend-diff`, `backend-pr`, `backend-issue`, `backend-webhook`, `backend-pipeline`, `backend-notification`, `backend-search`
+    - [ ] 1.2 Scaffold Vite + React + TypeScript project under `frontend/` with TailwindCSS, React Router v6, and `@tanstack/react-query` dependencies in `package.json`
+    - [ ] 1.3 Write `docker-compose.yml` with five services: `postgres` (postgres:16-alpine), `redis` (redis:7-alpine), `minio` (minio/minio), `backend`, `frontend` — each with healthchecks and named volumes
+    - [ ] 1.4 Write `backend/Dockerfile` as a two-stage build: stage 1 uses `eclipse-temurin:21-jdk-alpine` to run `./mvnw package -DskipTests`; stage 2 uses `gcr.io/distroless/java21-debian12` to run the JAR
+    - [ ] 1.5 Write `frontend/Dockerfile` as a two-stage build: stage 1 uses `node:20-alpine` to run `npm ci && npm run build`; stage 2 uses `nginx:alpine` to serve `/app/dist`
+    - [ ] 1.6 Write `frontend/nginx.conf` with reverse-proxy rules (`/api/*` → `backend:8080`, `/ws/*` → `backend:8080` with WebSocket upgrade), gzip compression, and SPA fallback (`try_files $uri /index.html`)
+    - [ ] 1.7 Write `.env.example` documenting all required environment variables: `POSTGRES_*`, `REDIS_*`, `MINIO_*`, `JWT_SECRET`, `JWT_EXPIRY_SECONDS`, `REFRESH_TOKEN_EXPIRY_DAYS`, `STORAGE_BACKEND`, `STORAGE_ROOT`, `S3_ENDPOINT`, `S3_BUCKET`, `CORS_ALLOWED_ORIGINS`
+
+- [ ] 2. Database Schema & Migrations (Flyway)
+  - **Requirement**: Req 1–17 (all entities)
+  - **Design section**: Database Schema
+  - Sub-tasks:
+    - [ ] 2.1 Write `src/main/resources/db/migration/V1__init.sql` creating all 18 tables (`users`, `repositories`, `collaborators`, `git_objects`, `branches`, `commits_meta`, `pull_requests`, `pr_reviews`, `pr_comments`, `issues`, `issue_comments`, `labels`, `issue_labels`, `webhooks`, `notifications`, `ssh_keys`, `personal_tokens`, `audit_logs`, `pipeline_runs`) with FK constraints, CHECK constraints, and all indexes as specified in the DDL
+    - [ ] 2.2 Write `src/main/resources/db/migration/V2__seed_data.sql` inserting default label colors (`bug`, `enhancement`, `documentation`, `question`) for use in tests and demos
+    - [ ] 2.3 Add Flyway dependency to `pom.xml` and configure `spring.flyway.locations`, `spring.flyway.baseline-on-migrate`, and datasource properties in `src/main/resources/application.yml`
+
+- [ ] 3. Auth Module
+  - **Requirement**: Req 1, Req 2, Req 16, Req 18
+  - **Design section**: Authentication & Security Design
+  - Sub-tasks:
+    - [ ] 3.1 Create `User` JPA entity (`com.dvcs.auth.domain.User`) mapping the `users` table with fields: `id`, `username`, `email`, `passwordHash`, `avatarUrl`, `bio`, `createdAt`
+    - [ ] 3.2 Create `UserRepository` extending `JpaRepository<User, Long>` with `findByUsername(String)` and `findByEmail(String)` query methods
+    - [ ] 3.3 Implement `AuthService` with `register(RegisterRequest)` (bcrypt password, save user, return 201), `login(LoginRequest)` (verify bcrypt, issue JWT + refresh token), and `refresh(String refreshToken)` (rotate refresh token, return new access token)
+    - [ ] 3.4 Implement `JwtUtil` using `io.jsonwebtoken` (JJWT): `generateAccessToken(User)` (HS256, 15-min expiry, claims: sub/username/roles), `generateRefreshToken(User)` (30-day expiry), `validateToken(String)`, `extractUserId(String)`, `extractUsername(String)`
+    - [ ] 3.5 Implement `JwtAuthenticationFilter` extending `OncePerRequestFilter`: extract `Authorization: Bearer` header, call `JwtUtil.validateToken`, set `SecurityContextHolder` authentication
+    - [ ] 3.6 Implement `PersonalTokenFilter` extending `OncePerRequestFilter`: fallback after JWT filter, look up `personal_tokens` by hashed token value, enforce scopes, set authentication
+    - [ ] 3.7 Create `SshKey` JPA entity mapping `ssh_keys` table; create `SshKeyRepository`; implement `SshKeyService.addKey(userId, title, publicKey)` computing SHA-256 fingerprint via `MessageDigest`
+    - [ ] 3.8 Create `PersonalToken` JPA entity mapping `personal_tokens` table; create `PersonalTokenRepository`; implement `PersonalTokenService.createToken(userId, name, scopes, expiresAt)` returning raw token once and storing only its SHA-256 hash
+    - [ ] 3.9 Implement `AuthController` with `POST /api/auth/register`, `POST /api/auth/login` (sets `refreshToken` HttpOnly cookie), `POST /api/auth/refresh` (reads cookie, rotates token)
+    - [ ] 3.10 Implement `SecurityConfig` (`@Configuration @EnableWebSecurity`): define filter chain ordering (RateLimitFilter → JwtAuthenticationFilter → PersonalTokenFilter), disable CSRF for `/api/**`, configure CORS from `CORS_ALLOWED_ORIGINS` env var, permit `/api/auth/**` and public repo reads without authentication
+    - [ ] 3.11 Write `AuthServiceTest` (JUnit 5 + Mockito) covering: register success returns saved user, register with duplicate username throws `ConflictException`, login with valid credentials returns tokens, login with wrong password throws `UnauthorizedException`, refresh with valid token rotates and returns new tokens
+
+- [ ] 4. Git Object Storage Engine
+  - **Requirement**: Req 4, Req 7, Req 19
+  - **Design section**: Git Object Storage Engine
+  - Sub-tasks:
+    - [ ] 4.1 Create `ObjectType` enum with values `BLOB`, `TREE`, `COMMIT` in `com.dvcs.git.object`
+    - [ ] 4.2 Create abstract `GitObject` class with fields `sha` (String, 64-char hex), `type` (ObjectType), and abstract method `serialize(): byte[]`
+    - [ ] 4.3 Implement `BlobObject extends GitObject`: constructor accepts `byte[] content`; `serialize()` returns `"blob {size}\0".getBytes() + content`
+    - [ ] 4.4 Create `TreeEntry` record with fields `mode` (String), `name` (String), `sha` (String); implement `TreeObject extends GitObject`: constructor accepts `List<TreeEntry>`; `serialize()` encodes each entry as `"{mode} {name}\0{20-byte-binary-sha}"` and wraps with `"tree {size}\0"`
+    - [ ] 4.5 Implement `CommitObject extends GitObject`: fields `treeSha`, `parentShas` (List), `authorName`, `authorEmail`, `authorTimestamp`, `committerName`, `committerEmail`, `committerTimestamp`, `message`; `serialize()` produces the canonical commit header format
+    - [ ] 4.6 Implement `SHA256Util.computeHex(byte[])` using `MessageDigest.getInstance("SHA-256")` returning lowercase hex string; add `verifyIntegrity(String expectedSha, byte[] data)` throwing `IntegrityException` on mismatch
+    - [ ] 4.7 Define `ObjectStoreBackend` interface with methods: `write(String repoId, String sha, byte[] data)`, `read(String repoId, String sha): byte[]`, `exists(String repoId, String sha): boolean`, `delete(String repoId, String sha)`, `size(String repoId, String sha): long`
+    - [ ] 4.8 Implement `LocalFsBackend implements ObjectStoreBackend`: stores files at `${storage.root}/{repoId}/objects/{sha[0..1]}/{sha[2..]}` using `java.nio.file`; `read` throws `ObjectNotFoundException` if file absent
+    - [ ] 4.9 Implement `S3Backend implements ObjectStoreBackend`: uses AWS SDK v2 `S3Client` configured with MinIO endpoint URL; key layout mirrors `LocalFsBackend`; `write` calls `PutObjectRequest`, `read` calls `GetObjectRequest`
+    - [ ] 4.10 Implement `ObjectStoreService`: facade injecting `ObjectStoreBackend` (selected by `STORAGE_BACKEND` env var); `writeObject(repoId, gitObject)` computes SHA, calls backend write, caches raw bytes in Redis at key `blob:{repoId}:{sha}` with TTL 3600s; `readObject(repoId, sha)` checks Redis first, falls back to backend
+    - [ ] 4.11 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write then read returns identical bytes, SHA mismatch on read throws `IntegrityException`, path traversal in SHA rejected with `IllegalArgumentException`
+
+- [ ] 5. Pack-File Codec
+  - **Requirement**: Req 4, Req 6
+  - **Design section**: Pack-File Transfer Format
+  - Sub-tasks:
+    - [ ] 5.1 Implement `PackFileEncoder`: constructor accepts `ObjectStoreService`; `encode(String repoId, List<String> shas): byte[]` writes PACK magic bytes + version (4 bytes, value 2) + object count (4 bytes), then for each SHA writes type+size in variable-length encoding followed by zlib-deflated object bytes, then appends SHA-256 of all preceding bytes as 32-byte trailer
+    - [ ] 5.2 Implement `PackFileDecoder`: `decode(InputStream packStream): List<RawObject>` reads and validates PACK header, parses each object's type+size header, inflates zlib data, verifies SHA-256 trailer; returns list of `RawObject(type, sha, data)`
+    - [ ] 5.3 Implement `DeltaCompressor`: `compress(byte[] base, byte[] target): byte[]` produces a simple copy/insert delta instruction stream; `apply(byte[] base, byte[] delta): byte[]` reconstructs target from base + delta
+    - [ ] 5.4 Write `PackFileCodecTest` (JUnit 5): encode 1 blob → decode returns same blob bytes, encode 5 mixed objects → decode returns all 5 with correct SHAs, tampered trailer byte causes `PackIntegrityException`
+
+- [ ] 6. HTTP Smart Git Transport
+  - **Requirement**: Req 6, Req 5, Req 16, Req 19
+  - **Design section**: HTTP Smart Git Transport
+  - Sub-tasks:
+    - [ ] 6.1 Implement `GitTransportController` (`@RestController @RequestMapping("/api/git/{owner}/{repo}")`): `GET /info/refs` dispatches to `UploadPackService` or `ReceivePackService` based on `service` query param; `POST /git-upload-pack`; `POST /git-receive-pack`
+    - [ ] 6.2 Implement `UploadPackService.advertiseRefs(repoId): byte[]` returning pkt-line encoded ref list; `UploadPackService.uploadPack(repoId, InputStream want/have): InputStream` performing want/have negotiation and returning pack stream via `PackFileEncoder`
+    - [ ] 6.3 Implement `ReceivePackService.advertiseRefs(repoId): byte[]`; `ReceivePackService.receivePack(repoId, userId, InputStream)`: parse pkt-line ref updates, check branch protection, call `PackFileDecoder`, write objects via `ObjectStoreService`, update `branches.head_sha`, insert `commits_meta` rows, invalidate Redis cache keys (`repo:{id}:branches`, `repo:{id}:commits:{branch}:*` via SCAN+DEL), publish to Redis channel `events:{repoId}`, trigger async webhook delivery, trigger async `PipelineEngine`
+    - [ ] 6.4 Implement `RepoAccessGuard`: `@Component` with methods `canRead(Authentication, String owner, String repo): boolean` and `canWrite(...)` checking `collaborators` table; annotate controller methods with `@PreAuthorize("@repoAccessGuard.canWrite(...)")`
+    - [ ] 6.5 Write `GitTransportIT` (Testcontainers + real `git` CLI via `ProcessBuilder`): start postgres+redis containers, create repo via API, `git clone http://localhost/api/git/{owner}/{repo}`, add file, `git push`, assert branch `head_sha` updated in DB
+
+- [ ] 7. Repository, Branch & Commit REST APIs
+  - **Requirement**: Req 3, Req 5, Req 8, Req 16, Req 19
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 7.1 Create `Repository` JPA entity mapping `repositories` table; create `RepoRepository` with `findByOwnerUsernameAndName(String, String)` and `findByOwnerId(Long)` methods
+    - [ ] 7.2 Create `Collaborator` JPA entity (composite PK `repo_id + user_id`) mapping `collaborators` table; create `CollaboratorRepository`
+    - [ ] 7.3 Implement `RepoService`: `createRepo(userId, CreateRepoRequest)` (check name uniqueness, create repo + default branch, return DTO), `getRepo(requesterId, owner, name)` (enforce visibility), `deleteRepo(requesterId, owner, name)` (OWNER check, cascade delete), `forkRepo(userId, owner, name)` (copy object refs, create new repo), `getStats(owner, name)` (object size sum, commit count, contributor count)
+    - [ ] 7.4 Implement `RepoController` (`@RestController @RequestMapping("/api/repos")`): `POST /` → createRepo, `GET /{owner}/{repo}` → getRepo, `DELETE /{owner}/{repo}` → deleteRepo, `POST /{owner}/{repo}/fork` → forkRepo, `GET /{owner}/{repo}/stats` → getStats; cache repo metadata in Redis at `repo:{id}:meta` TTL 60s
+    - [ ] 7.5 Create `Branch` JPA entity mapping `branches` table; create `BranchRepository` with `findByRepoIdAndName(Long, String)`
+    - [ ] 7.6 Implement `BranchService`: `createBranch(repoId, name, sourceSha)`, `listBranches(repoId)` (cached at `repo:{id}:branches` TTL 60s), `deleteBranch(repoId, name, requesterId)` (check protection), `toggleProtection(repoId, name, protect, requesterId)`
+    - [ ] 7.7 Implement `BranchController` (`@RequestMapping("/api/repos/{owner}/{repo}/branches")`): `GET /` → listBranches, `POST /` → createBranch, `DELETE /{name}` → deleteBranch, `PATCH /{name}/protect` → toggleProtection
+    - [ ] 7.8 Create `CommitMeta` JPA entity mapping `commits_meta` table; create `CommitMetaRepository` with `findByRepoIdOrderByAuthoredAtDesc(Long, Pageable)` and `findByRepoIdAndSha(Long, String)`
+    - [ ] 7.9 Implement `CommitController`: `GET /api/repos/{owner}/{repo}/commits/{branch}` (paginated, cached at `repo:{id}:commits:{branch}:{page}` TTL 30s), `GET /commits/{sha}` (full metadata + diff vs first parent), `GET /compare/{base}...{head}` (commits reachable from head not base + combined diff)
+    - [ ] 7.10 Write `RepoControllerIT`, `BranchControllerIT`, `CommitControllerIT` (Testcontainers + `MockMvc`): create repo, list branches, create branch, protect branch, reject delete of protected branch, paginated commit log, compare two branches
+
+- [ ] 8. Tree & Blob REST APIs
+  - **Requirement**: Req 7, Req 18, Req 19
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 8.1 Implement `TreeController` (`GET /api/repos/{owner}/{repo}/tree/{ref}/{*path}`): resolve ref → `commits_meta.sha` → `CommitObject.treeSha` → walk `TreeObject` entries along path segments; return JSON array of `{name, type, size, lastCommitSha, lastCommitMessage}`
+    - [ ] 8.2 Implement `BlobController`: `GET /api/repos/{owner}/{repo}/blob/{ref}/{*path}` returns `{content (base64), size, encoding, lastCommitSha}` with Redis cache at `blob:{repoId}:{sha}` TTL 3600s; `GET /raw/{ref}/{*path}` streams raw bytes with `Content-Type` detection
+    - [ ] 8.3 Implement `PathValidator` (`@Component`): `validate(String path)` throws `PathTraversalException` (→ HTTP 400) if path contains `../`, `..\`, or URL-encoded equivalents `%2e%2e`
+    - [ ] 8.4 Write `TreeBlobControllerIT` (Testcontainers): push a commit with nested directory structure via `git push`, call tree API at root and subdirectory, call blob API for a text file and a binary file, verify raw endpoint streams correct bytes, verify `../` path returns 400
+
+- [ ] 9. Diff Engine
+  - **Requirement**: Req 9, Req 10
+  - **Design section**: Diff Engine Design
+  - Sub-tasks:
+    - [ ] 9.1 Create `DiffLine` record with fields `type` (enum: ADD, REMOVE, CONTEXT), `content` (String), `baseLineNo` (int), `headLineNo` (int)
+    - [ ] 9.2 Create `DiffHunk` class with fields `type`, `baseStart`, `baseEnd`, `headStart`, `headEnd`, `lines` (List<DiffLine>)
+    - [ ] 9.3 Implement `MyersDiff` (`com.dvcs.diff.algorithm`): `diff(String[] base, String[] head): List<DiffHunk>` using the O(ND) Myers shortest-edit-script algorithm; group consecutive edits into hunks with ±3 context lines; no external diff library
+    - [ ] 9.4 Implement `PatchApplier`: `apply(String[] base, List<DiffHunk> hunks): String[]` reconstructing the head file by applying ADD/REMOVE operations from hunks to base lines
+    - [ ] 9.5 Implement `BinaryDetector`: `isBinary(byte[] data): boolean` — returns true if any of the first 8,000 bytes is `\0` or if the byte sequence matches PNG (`\x89PNG`), PDF (`%PDF`), ZIP (`PK\x03\x04`), or ELF (`\x7fELF`) magic bytes
+    - [ ] 9.6 Implement `ThreeWayMerge`: `merge(String[] base, String[] ours, String[] theirs): MergeResult` — compute `diff(base, ours)` and `diff(base, theirs)`, apply non-overlapping hunks automatically, emit `<<<<<<< OURS / ======= / >>>>>>> THEIRS` conflict markers for overlapping hunks; `MergeResult` contains merged lines and `hasConflicts` flag
+    - [ ] 9.7 Implement `DiffService`: `textDiff(repoId, baseSha, headSha, filePath): List<DiffHunk>`, `binaryDiff(repoId, baseSha, headSha, filePath): BinaryDiffResult`, `threeWayMerge(repoId, baseSha, oursSha, theirsSha, filePath): MergeResult`
+    - [ ] 9.8 Implement `DiffController` (`GET /api/repos/{owner}/{repo}/diff?base=&head=&path=`): call `DiffService.textDiff` or `binaryDiff` based on `BinaryDetector`; return unified diff JSON or binary size delta
+    - [ ] 9.9 Write `MyersDiffTest` (JUnit 5): diff of two empty arrays returns empty list, diff of identical arrays returns only CONTEXT hunks, single-line change produces one hunk with one REMOVE + one ADD, multi-hunk diff on 50-line files, round-trip property `apply(A, diff(A,B)) == B` for 20 random string pairs
+    - [ ] 9.10 Write `ThreeWayMergeTest`: no-conflict auto-merge produces correct merged output, same-line conflict produces conflict markers, adjacent-line edits auto-merge without conflict
+
+- [ ] 10. Pull Request Module
+  - **Requirement**: Req 10, Req 12, Req 14
+  - **Design section**: Pull Request Merge Strategies
+  - Sub-tasks:
+    - [ ] 10.1 Create `PullRequest` JPA entity mapping `pull_requests` table; create `PullRequestRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`
+    - [ ] 10.2 Create `PrReview` JPA entity mapping `pr_reviews` table; create `PrReviewRepository` with `findByPrId(Long)` and `findLatestByPrIdAndReviewerId(Long, Long)`
+    - [ ] 10.3 Create `PrComment` JPA entity mapping `pr_comments` table; create `PrCommentRepository` with `findByPrIdOrderByCreatedAtAsc(Long)`
+    - [ ] 10.4 Implement `PullRequestService`: `openPr(userId, repoId, CreatePrRequest)` (validate head≠base, compute initial diff via `DiffService`, return 201), `listPrs(repoId, status, pageable)`, `getPrDetail(repoId, prNumber)` (metadata + diff + timeline), `updateDiffOnPush(repoId, branchName)` (recompute diff for all open PRs with matching head branch)
+    - [ ] 10.5 Implement `ReviewService`: `submitReview(userId, prId, verdict, body)` (save `PrReview`, notify PR author via `NotificationService`), `isMergeable(prId): boolean` (at least one APPROVE, no unresolved CHANGES_REQUESTED)
+    - [ ] 10.6 Implement `MergeStrategyService`: `findLCA(repoId, sha1, sha2): String` (BFS on `commits_meta` parent graph), `mergeCommit(repoId, pr, requesterId)`, `squashMerge(repoId, pr, requesterId)`, `rebaseMerge(repoId, pr, requesterId)` — each calls `ThreeWayMerge`, writes new objects via `ObjectStoreService`, updates `branches.head_sha`, marks PR merged, triggers webhook + notification
+    - [ ] 10.7 Implement `PullRequestController` (`@RequestMapping("/api/repos/{owner}/{repo}/pulls")`): `POST /` → openPr, `GET /` → listPrs, `GET /{id}` → getPrDetail, `POST /{id}/review` → submitReview, `POST /{id}/merge?strategy=` → merge (check `ReviewService.isMergeable`, return 422 if not), `POST /{id}/comments` → addComment
+    - [ ] 10.8 Write `PullRequestControllerIT` (Testcontainers): open PR, submit APPROVE review, merge with merge-commit strategy, verify base branch updated; open PR, submit CHANGES_REQUESTED, attempt merge → 422; open PR with conflicting changes, attempt merge → 422 with conflict details; test squash and rebase strategies
+
+- [ ] 11. Issues Module
+  - **Requirement**: Req 11, Req 12, Req 14
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 11.1 Create `Issue` JPA entity mapping `issues` table; create `IssueRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`; use `SELECT MAX(number)+1` subquery for sequential number assignment
+    - [ ] 11.2 Create `IssueComment` JPA entity mapping `issue_comments` table; create `IssueCommentRepository` with `findByIssueIdOrderByCreatedAtAsc(Long)`
+    - [ ] 11.3 Create `Label` JPA entity mapping `labels` table; create `LabelRepository` with `findByRepoIdAndName(Long, String)`
+    - [ ] 11.4 Implement `IssueService`: `createIssue(userId, repoId, CreateIssueRequest)` (assign sequential number, status=open, return 201), `updateIssue(userId, issueId, UpdateIssueRequest)` (author/WRITE/OWNER check), `closeIssue(userId, issueId)` (authorized check, trigger issues webhook), `listIssues(repoId, status, pageable)`, `addComment(userId, issueId, body)` (save comment, notify author + previous commenters)
+    - [ ] 11.5 Implement `LabelService`: `createLabel(repoId, name, color, requesterId)` (WRITE/OWNER check), `applyLabel(issueId, labelId, repoId)` (verify label belongs to same repo, throw 422 if not), `removeLabel(issueId, labelId)`
+    - [ ] 11.6 Implement `IssueController` (`@RequestMapping("/api/repos/{owner}/{repo}/issues")`): `POST /` → createIssue, `GET /` → listIssues, `GET /{number}` → getIssue, `PATCH /{number}` → updateIssue, `POST /{number}/close` → closeIssue, `POST /{number}/comments` → addComment, `POST /{number}/labels` → applyLabel, `DELETE /{number}/labels/{labelId}` → removeLabel
+    - [ ] 11.7 Write `IssueControllerIT` (Testcontainers): create issue, add comment (verify notification created), apply label, apply non-existent label → 422, close issue (verify webhook triggered), unauthorized update → 403
+
+- [ ] 12. Webhook Module
+  - **Requirement**: Req 12
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 12.1 Create `Webhook` JPA entity mapping `webhooks` table; create `WebhookRepository` with `findByRepoIdAndActiveTrue(Long)` and `findByRepoIdAndEventsContaining(Long, String)`
+    - [ ] 12.2 Implement `WebhookService`: `createWebhook(repoId, userId, CreateWebhookRequest)` (OWNER check, return 201), `listWebhooks(repoId, userId)`, `updateWebhook(webhookId, userId, UpdateWebhookRequest)`, `deleteWebhook(webhookId, userId)` (OWNER check, return 204)
+    - [ ] 12.3 Implement `WebhookDeliveryService`: `deliver(Webhook webhook, String eventType, Object payload)` — serialize payload to JSON, compute `X-Hub-Signature-256: sha256={hmac}` header using `javax.crypto.Mac` with webhook secret, POST to webhook URL via `java.net.http.HttpClient` with 10s timeout; on non-2xx or timeout, retry with exponential backoff (1s, 2s, 4s) up to 3 attempts; never log `webhook.secret`; run in `@Async` thread pool
+    - [ ] 12.4 Implement `WebhookController` (`@RequestMapping("/api/repos/{owner}/{repo}/webhooks")`): `POST /` → createWebhook, `GET /` → listWebhooks, `PATCH /{id}` → updateWebhook, `DELETE /{id}` → deleteWebhook, `POST /{id}/test` → deliver synthetic ping payload and return delivery result
+    - [ ] 12.5 Write `WebhookControllerIT` (Testcontainers + WireMock): create webhook, trigger push event, verify WireMock received POST with correct `X-Hub-Signature-256` header, simulate 500 response and verify 3 retry attempts, test endpoint delivers ping
+
+- [ ] 13. CI/CD Pipeline Engine
+  - **Requirement**: Req 13, Req 14
+  - **Design section**: CI/CD Pipeline Engine Design
+  - Sub-tasks:
+    - [ ] 13.1 Create `PipelineRun` JPA entity mapping `pipeline_runs` table with `status` (PENDING/RUNNING/SUCCESS/FAILURE), `stagesJson` (JSONB mapped to `String`), `startedAt`, `finishedAt`; create `PipelineRunRepository` with `findByRepoIdOrderByCreatedAtDesc(Long, Pageable)` and `findByRepoIdAndCommitSha(Long, String)`
+    - [ ] 13.2 Implement `PipelineEngine` (`@Service`): `@Async @EventListener(PushEvent.class)` method `onPush(PushEvent)` — create `PipelineRun` (PENDING), update to RUNNING, execute build stage (`Thread.sleep` 1–3s, 10% `Random` failure), if build SUCCESS execute test stage (`Thread.sleep` 2–5s, 15% failure), set final status, set `finishedAt`, save; call `notifyOpenPRs(run)` to update PR pipeline status display
+    - [ ] 13.3 Implement `PipelineController` (`@RequestMapping("/api/repos/{owner}/{repo}/pipelines")`): `GET /` → paginated list of `PipelineRun` DTOs, `GET /api/pipelines/{id}` → full run detail including `stagesJson` parsed to stage list
+    - [ ] 13.4 Write `PipelineControllerIT` (Testcontainers): trigger push event, poll pipeline list until status is SUCCESS or FAILURE (max 30s), verify stages JSON contains build and test entries with timing
+
+- [ ] 14. Notification Module & WebSocket
+  - **Requirement**: Req 14
+  - **Design section**: WebSocket Notifications Design
+  - Sub-tasks:
+    - [ ] 14.1 Create `Notification` JPA entity mapping `notifications` table; create `NotificationRepository` with `findByUserIdAndReadFalseOrderByCreatedAtDesc(Long, Pageable)`
+    - [ ] 14.2 Implement `NotificationService`: `createNotification(userId, subjectType, subjectId, reason)` — save `Notification` record, then `redisTemplate.convertAndSend("events:" + userId, notificationJson)` via `StringRedisTemplate`
+    - [ ] 14.3 Implement `NotificationFanout` (`@Service implements MessageListener`): subscribe to Redis pattern `events:*` via `RedisMessageListenerContainer`; on message, parse `userId` from channel name, call `SimpMessagingTemplate.convertAndSendToUser(userId, "/queue/notifications", payload)`
+    - [ ] 14.4 Implement `WebSocketConfig` (`@Configuration @EnableWebSocketMessageBroker`): register STOMP endpoint `/ws/notifications` with SockJS fallback, configure message broker with `/topic` and `/queue` prefixes, add `ChannelInterceptor` to authenticate CONNECT frames via JWT
+    - [ ] 14.5 Implement `NotificationController` (`@RequestMapping("/api/notifications")`): `GET /` → paginated unread notifications for authenticated user, `PATCH /{id}/read` → set `read=true`, return 200
+    - [ ] 14.6 Write `NotificationControllerIT` (Testcontainers): create notification via service, call list endpoint, verify returned, mark as read, verify no longer in unread list
+
+- [ ] 15. Search Module
+  - **Requirement**: Req 15
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 15.1 Implement `SearchService`: `searchRepositories(query, pageable)` — `SELECT * FROM repositories WHERE (name ILIKE '%{q}%' OR description ILIKE '%{q}%') AND is_private=false ORDER BY name`; `searchCode(query, pageable)` — scan `git_objects` of type BLOB in public repos, read content via `ObjectStoreService`, return `{repoOwner, repoName, filePath, snippet}` for matches; `searchUsers(query, pageable)` — `SELECT * FROM users WHERE username ILIKE '%{q}%' OR bio ILIKE '%{q}%'`
+    - [ ] 15.2 Implement `SearchController` (`GET /api/search?q=&type=repositories|code|users`): validate `q` length ≥ 2 (return 400 otherwise), dispatch to `SearchService` based on `type`, return paginated results
+    - [ ] 15.3 Write `SearchControllerIT` (Testcontainers): create public repo with known name, search repositories → found, search with q < 2 chars → 400, search users by username → found, search code for known file content → returns snippet
+
+- [ ] 16. Rate Limiting & Security Hardening
+  - **Requirement**: Req 17, Req 18
+  - **Design section**: Authentication & Security Design / Rate Limiting Strategy
+  - Sub-tasks:
+    - [ ] 16.1 Implement `RateLimitFilter extends OncePerRequestFilter` using Bucket4j: create four `Bucket` configurations — unauthenticated (60 req/min keyed by IP), authenticated (5000 req/hour keyed by userId), git push endpoints (100 req/hour keyed by userId), auth endpoints `/api/auth/**` (10 req/min keyed by IP); store bucket state in Redis via `Bucket4j`'s `RedisProxyManager`; on limit exceeded set response status 429 and `Retry-After` header
+    - [ ] 16.2 Implement `GlobalExceptionHandler` (`@RestControllerAdvice`): map `EntityNotFoundException` → 404, `AccessDeniedException` → 403, `ConflictException` → 409, `PathTraversalException` → 400, `MethodArgumentNotValidException` → 400 with field-level details, `RateLimitExceededException` → 429, `MergeConflictException` → 422, `Exception` → 500; all responses use `ErrorEnvelope {error, message, details, timestamp}`
+    - [ ] 16.3 Implement `InputSanitizer` (`@Component`): `sanitize(String html): String` using OWASP Java HTML Sanitizer `PolicyFactory` allowing only safe tags; call from `IssueService` and `PullRequestService` before persisting body text
+    - [ ] 16.4 Create `AuditLog` JPA entity mapping `audit_logs` table; implement `AuditLogService.record(actorId, action, resourceType, resourceId, ip)` saving an `AuditLog` row; annotate sensitive methods (login, push, deleteRepo, mergePr) with a custom `@Audited` AOP aspect that calls `AuditLogService`
+    - [ ] 16.5 Write `RateLimitIT` (Testcontainers): send 11 requests to `/api/auth/login` within 1 minute from same IP, verify 11th returns 429 with `Retry-After` header; send 61 unauthenticated requests, verify 61st returns 429
+
+- [ ] 17. React Frontend — Core Setup
+  - **Requirement**: Req 20, Req 21, Req 22
+  - **Design section**: Frontend Architecture
+  - Sub-tasks:
+    - [ ] 17.1 Initialize Vite project under `frontend/` with `npm create vite@latest -- --template react-ts`; install `tailwindcss`, `postcss`, `autoprefixer`, `react-router-dom@6`, `@tanstack/react-query`, `@stomp/stompjs`, `sockjs-client`, `fuse.js`, `prismjs`, `@types/prismjs`; configure `tailwind.config.ts` and `postcss.config.js`
+    - [ ] 17.2 Implement `AuthContext` (`src/context/AuthContext.tsx`): store `accessToken` in memory (not localStorage), `user` object, `login(credentials)` action (POST `/api/auth/login`, store token), `logout()` action (clear token, redirect `/login`), `refresh()` action (POST `/api/auth/refresh`, update token); export `useAuth()` hook
+    - [ ] 17.3 Implement `apiClient` (`src/api/client.ts`): typed wrapper over `fetch` with methods `get<T>`, `post<T>`, `patch<T>`, `delete<T>`; inject `Authorization: Bearer {token}` from `AuthContext`; on 401 response attempt one silent `refresh()` then retry; on second 401 redirect to `/login`
+    - [ ] 17.4 Configure `QueryClientProvider` in `src/main.tsx` wrapping the app; set default `staleTime: 30_000` and `retry: 1`
+    - [ ] 17.5 Implement `AppShell` layout component (`src/components/layout/AppShell.tsx`): top navigation bar with logo, search input, notification bell, user avatar dropdown; left sidebar for repo navigation (visible on repo pages); `<Outlet />` for page content
+    - [ ] 17.6 Implement `ProtectedRoute` component: wraps routes requiring authentication; redirects to `/login` if `AuthContext.accessToken` is null
+    - [ ] 17.7 Implement `NotificationBell` component (`src/components/NotificationBell.tsx`) and `useNotifications` hook (`src/hooks/useNotifications.ts`): connect to STOMP endpoint `/ws/notifications` using `@stomp/stompjs`; subscribe to `/user/queue/notifications`; maintain unread count in state; display badge; on click show dropdown list of recent notifications
+
+- [ ] 18. React Frontend — Auth & User Pages
+  - **Requirement**: Req 20
+  - **Design section**: Frontend Architecture / Route Map
+  - Sub-tasks:
+    - [ ] 18.1 Implement `LoginPage` (`src/pages/LoginPage.tsx`) at route `/login`: controlled form with username and password fields, submit calls `AuthContext.login()`, on success redirect to `/`, display error message on 401
+    - [ ] 18.2 Implement `RegisterPage` (`src/pages/RegisterPage.tsx`) at route `/register`: controlled form with username, email, password, confirm-password fields, submit POST `/api/auth/register`, on 201 redirect to `/login`, display field-level errors from 400 response
+    - [ ] 18.3 Implement `UserProfilePage` (`src/pages/UserProfilePage.tsx`) at route `/:owner`: fetch user data via `GET /api/users/:owner`, display avatar, bio, public repo list (cards with name/description/star count), activity feed (recent commits/PRs/issues)
+    - [ ] 18.4 Implement `UserSettingsPage` (`src/pages/UserSettingsPage.tsx`) at route `/settings` (protected): tabs for Profile (edit avatar URL, bio), SSH Keys (list + add + delete), Personal Access Tokens (list + create + revoke); each tab uses React Query mutations
+    - [ ] 18.5 Implement `LandingPage` (`src/pages/LandingPage.tsx`) at route `/`: hero section with headline and CTA buttons (Get Started → `/register`, Explore → `/explore`), feature highlights grid (Git transport, PR reviews, CI/CD, real-time notifications)
+    - [ ] 18.6 Implement `ExplorePage` (`src/pages/ExplorePage.tsx`) at route `/explore`: search bar wired to `GET /api/search?q=&type=repositories`, display trending public repos (sorted by recent push), debounced search results
+
+- [ ] 19. React Frontend — Repository Browser
+  - **Requirement**: Req 21
+  - **Design section**: Frontend Architecture / Key Component Designs
+  - Sub-tasks:
+    - [ ] 19.1 Implement `RepoHomePage` (`src/pages/RepoHomePage.tsx`) at route `/:owner/:repo`: fetch repo metadata, render README markdown (use `marked` library), show file tree preview (top-level entries), clone modal with HTTP URL (`http://localhost/api/git/{owner}/{repo}`) and SSH URL, display stats (commits, contributors, size)
+    - [ ] 19.2 Implement `FileTreePage` (`src/pages/FileTreePage.tsx`) at route `/:owner/:repo/tree/:ref/*`: recursive `FileTree` component rendering collapsible folder nodes and file leaves with file-type icons (use `react-icons`); breadcrumb navigation; each entry shows last-commit message and relative timestamp; fetch via `GET /api/repos/{owner}/{repo}/tree/{ref}/{path}`
+    - [ ] 19.3 Implement `FileBlobPage` (`src/pages/FileBlobPage.tsx`) at route `/:owner/:repo/blob/:ref/*`: fetch blob content, detect language from file extension, render with Prism.js syntax highlighting; show file size, last-commit SHA link, raw download button
+    - [ ] 19.4 Implement `BranchSelector` component (`src/components/BranchSelector.tsx`): fetch branches and tags via `GET /api/repos/{owner}/{repo}/branches`; fuzzy filter using `fuse.js` on keystroke; render grouped dropdown (Branches / Tags sections); keyboard navigation with ↑↓ to move selection, Enter to confirm, Escape to close; call `onChange(ref)` prop on selection
+    - [ ] 19.5 Implement `CommitListPage` (`src/pages/CommitListPage.tsx`) at route `/:owner/:repo/commits/:ref`: paginated list of commits fetched via `GET /api/repos/{owner}/{repo}/commits/{ref}?page=`; each row shows author avatar, message (truncated), SHA (link to detail), relative timestamp; infinite scroll or page controls
+    - [ ] 19.6 Implement `CommitDetailPage` (`src/pages/CommitDetailPage.tsx`) at route `/:owner/:repo/commit/:sha`: show commit metadata (author, committer, message, parent SHAs as links), render `DiffViewer` component with diff vs first parent
+    - [ ] 19.7 Implement `BranchListPage` (`src/pages/BranchListPage.tsx`) at route `/:owner/:repo/branches`: list all branches with head SHA, protection badge, last-commit date; create branch button (modal with name + source ref); delete button (disabled for protected branches); toggle protection button (OWNER only)
+    - [ ] 19.8 Implement `CommitGraph` component (`src/components/CommitGraph.tsx`): accept `commits: CommitNode[]` prop where `CommitNode = {sha, parents, branch, message, authoredAt}`; topological sort newest-first; assign each branch a lane (x-coordinate); render SVG with `<circle>` per commit, cubic bezier `<path>` per parent edge, `<text>` branch labels; color lanes deterministically from branch name hash; handle merge commits (two parent edges)
+
+- [ ] 20. React Frontend — PR, Issues & Settings
+  - **Requirement**: Req 22
+  - **Design section**: Frontend Architecture / Key Component Designs
+  - Sub-tasks:
+    - [ ] 20.1 Implement `DiffViewer` component (`src/components/DiffViewer.tsx`): accept `hunks: DiffHunk[]` and `mode: 'unified' | 'split'` props; unified mode renders single column with green ADD lines, red REMOVE lines, gray CONTEXT lines; split mode renders two synchronized-scroll columns with empty rows on the unchanged side; toggle button switches mode; clicking a line number opens inline `CommentForm` component; submitted comments render threaded below the line
+    - [ ] 20.2 Implement `PullRequestListPage` (`src/pages/PullRequestListPage.tsx`) at route `/:owner/:repo/pulls`: filter tabs (Open / Closed / Merged); fetch via `GET /api/repos/{owner}/{repo}/pulls?status=`; each row shows PR number, title, author, label badges, review status icon, created date; "New Pull Request" button opens creation form
+    - [ ] 20.3 Implement `PullRequestDetailPage` (`src/pages/PullRequestDetailPage.tsx`) at route `/:owner/:repo/pulls/:id`: render PR title/body, `DiffViewer` for the PR diff, `PullRequestTimeline` component (commits, reviews, comments, merge events in chronological order), review submit form (verdict selector + comment textarea), merge controls (strategy selector dropdown: merge commit / squash / rebase, merge button disabled if not mergeable)
+    - [ ] 20.4 Implement `IssueListPage` (`src/pages/IssueListPage.tsx`) at route `/:owner/:repo/issues`: filter by status (open/closed) and label; fetch via `GET /api/repos/{owner}/{repo}/issues?status=&label=`; each row shows issue number, title, label badges, comment count, author, created date; "New Issue" button
+    - [ ] 20.5 Implement `IssueDetailPage` (`src/pages/IssueDetailPage.tsx`) at route `/:owner/:repo/issues/:number`: render issue title, body (sanitized HTML), label chips with color, comment thread (each comment shows author avatar, body, timestamp), add-comment form at bottom, close/reopen button (author or WRITE/OWNER), label management sidebar
+    - [ ] 20.6 Implement `RepoSettingsPage` (`src/pages/RepoSettingsPage.tsx`) at route `/:owner/:repo/settings` (OWNER only): General tab (rename repo, change visibility, update description), Collaborators tab (list + add by username + change role + remove), Webhooks tab (list + create + edit + delete + test), Danger Zone section (delete repository with confirmation dialog requiring repo name re-entry)
+    - [ ] 20.7 Implement `PipelineListPage` (`src/pages/PipelineListPage.tsx`) at route `/:owner/:repo/pipelines`: paginated list of pipeline runs; each row shows commit SHA (link), status badge (PENDING/RUNNING/SUCCESS/FAILURE with color), triggered-at timestamp, duration; click row expands stage detail with per-stage status badges and timing
+
+- [ ] 21. Frontend Tests
+  - **Requirement**: Req 21, Req 22
+  - **Design section**: Frontend Architecture / Key Component Designs
+  - Sub-tasks:
+    - [ ] 21.1 Write `DiffViewer.test.tsx` (Vitest + React Testing Library): renders unified diff with correct ADD/REMOVE/CONTEXT line classes, renders split diff with two columns, clicking mode toggle switches between unified and split, renders binary diff message when `binary: true` prop passed
+    - [ ] 21.2 Write `CommitGraph.test.tsx` (Vitest + React Testing Library): renders correct number of `<circle>` elements for given commits array, renders parent edge `<path>` elements, merge commit node has two parent edge paths, single-branch linear history renders all nodes in one lane
+    - [ ] 21.3 Write `BranchSelector.test.tsx` (Vitest + React Testing Library + userEvent): renders all branches initially, typing in search input reduces displayed list via fuzzy filter, pressing ↓ moves keyboard focus to next item, pressing Enter calls `onChange` with selected branch name, pressing Escape closes the dropdown
+    - [ ] 21.4 Write `AuthContext.test.tsx` (Vitest + React Testing Library): `login()` stores access token in context state, `logout()` clears token and user, `refresh()` on 401 response calls `/api/auth/refresh` and updates token, failed refresh redirects to `/login`
+
+- [ ] 22. Backend Unit & Integration Tests
+  - **Requirement**: Req 4, Req 6, Req 9, Req 1
+  - **Design section**: All backend modules
+  - Sub-tasks:
+    - [ ] 22.1 Write `MyersDiffTest` (JUnit 5): diff of two empty `String[]` returns empty list, diff of identical 10-line arrays returns 10 CONTEXT lines, single-line change at line 5 produces one hunk with one REMOVE + one ADD, 50-line file with 3 scattered changes produces 3 hunks, round-trip property `apply(A, diff(A,B)) == B` verified for 20 randomly generated string-array pairs
+    - [ ] 22.2 Write `ThreeWayMergeTest` (JUnit 5): base="line1\nline2\nline3", ours adds "line4" at end, theirs changes "line1" → "LINE1" — auto-merge produces all four changes; base="x", ours="y", theirs="z" — conflict markers present in output; ours edits line 2, theirs edits line 4 — adjacent edits auto-merge without conflict
+    - [ ] 22.3 Write `ObjectStoreServiceTest` (JUnit 5 + Mockito): write blob then read returns identical bytes, write then read with SHA mismatch throws `IntegrityException`, SHA containing `../` throws `IllegalArgumentException` before reaching backend, Redis cache hit skips backend read call
+    - [ ] 22.4 Write `PackFileCodecTest` (JUnit 5): encode single blob → decode returns same type and bytes, encode 5 objects of mixed types → decode returns all 5 with correct SHAs, flip one byte in trailer → `PackIntegrityException` thrown on decode
+    - [ ] 22.5 Write `AuthServiceTest` (JUnit 5 + Mockito): register with unique username saves user with bcrypt hash and returns DTO, register with duplicate username throws `ConflictException` (409), login with correct password returns access token + refresh token, login with wrong password throws `UnauthorizedException` (401), refresh with valid token returns new access token and rotated refresh token
+    - [ ] 22.6 Write full integration test suite using Testcontainers (`@SpringBootTest` + `postgres:16-alpine` + `redis:7-alpine` containers): `AuthControllerIT` (register, login, refresh), `RepoControllerIT` (create, get, fork, delete), `GitTransportIT` (info/refs, clone, push), `BranchControllerIT` (create, protect, delete), `PullRequestControllerIT` (open, review, merge), `IssueControllerIT` (create, comment, label, close), `DiffControllerIT` (text diff, binary diff), `WebhookControllerIT` (create, test delivery), `PipelineControllerIT` (trigger, poll status), `NotificationControllerIT` (create, list, mark-read), `SearchControllerIT` (repos, code, users, short-query 400), `RateLimitIT` (exceed auth limit → 429)
+
+- [ ] 23. Load Tests (k6)
+  - **Requirement**: Req 17, Req 6
+  - **Design section**: System Architecture
+  - Sub-tasks:
+    - [ ] 23.1 Write `k6/clone.js`: 50 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-upload-pack` then `POST /api/git/{owner}/{repo}/git-upload-pack`; assert p95 response time < 2000ms and error rate < 1%
+    - [ ] 23.2 Write `k6/push.js`: 20 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-receive-pack` then `POST /api/git/{owner}/{repo}/git-receive-pack` with a minimal pack payload; assert p95 < 3000ms
+    - [ ] 23.3 Write `k6/pr_merge.js`: 10 virtual users × 5 minutes — each iteration creates a PR via `POST /api/repos/{owner}/{repo}/pulls`, submits an APPROVE review, then merges via `POST /pulls/{id}/merge?strategy=squash`; assert p95 < 5000ms
+    - [ ] 23.4 Write `k6/thresholds.js`: shared threshold configuration module exporting `{ http_req_duration: ['p(95)<2000'], http_req_failed: ['rate<0.01'] }` imported by all scenario scripts
+
+- [ ] 24. OpenAPI Documentation & README
+  - **Requirement**: Req 1–22 (documentation)
+  - **Design section**: Backend Package Structure
+  - Sub-tasks:
+    - [ ] 24.1 Add `springdoc-openapi-starter-webmvc-ui` dependency to `pom.xml`; implement `OpenApiConfig` (`@Configuration`) bean defining `OpenAPI` with title "DVCS Platform API", version "1.0.0", and `SecurityScheme` of type HTTP Bearer (JWT)
+    - [ ] 24.2 Add `@Schema` annotations to all request DTOs (`CreateRepoRequest`, `CreatePrRequest`, `CreateIssueRequest`, `RegisterRequest`, `LoginRequest`, etc.) and response DTOs with field descriptions and example values
+    - [ ] 24.3 Add `@Operation(summary=...)` and `@ApiResponse(responseCode=..., description=...)` annotations to every `@RequestMapping` method in all controllers (AuthController, RepoController, BranchController, CommitController, TreeController, BlobController, DiffController, PullRequestController, IssueController, WebhookController, PipelineController, NotificationController, SearchController, GitTransportController)
+    - [ ] 24.4 Verify `/api/docs` returns OpenAPI 3 JSON and `/api/swagger-ui` renders the Swagger UI by adding a smoke test in `OpenApiIT` (Testcontainers) that asserts HTTP 200 on both endpoints
+    - [ ] 24.5 Write `README.md` at repository root covering: prerequisites (Java 21, Node 20, Docker, git), local development setup (`./mvnw spring-boot:run` + `npm run dev`), Docker Compose setup (`docker compose up --build`), first-push walkthrough (`git clone http://localhost/api/git/alice/myrepo`, `echo "hello" > README.md`, `git add . && git commit -m "init" && git push`), environment variable reference table (name, description, default value for each variable in `.env.example`)
