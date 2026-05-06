@@ -71,20 +71,20 @@
     - [x] 6.4 Implement `RepoAccessGuard`: `@Component` with methods `canRead(Authentication, String owner, String repo): boolean` and `canWrite(...)` checking `collaborators` table; annotate controller methods with `@PreAuthorize("@repoAccessGuard.canWrite(...)")`
     - [x] 6.5 Write `GitTransportIT` (Testcontainers + real `git` CLI via `ProcessBuilder`): start postgres+redis containers, create repo via API, `git clone http://localhost/api/git/{owner}/{repo}`, add file, `git push`, assert branch `head_sha` updated in DB
 
-- [ ] 7. Repository, Branch & Commit REST APIs
+- [x] 7. Repository, Branch & Commit REST APIs
   - **Requirement**: Req 3, Req 5, Req 8, Req 16, Req 19
   - **Design section**: Backend Package Structure
   - Sub-tasks:
-    - [ ] 7.1 Create `Repository` JPA entity mapping `repositories` table; create `RepoRepository` with `findByOwnerUsernameAndName(String, String)` and `findByOwnerId(Long)` methods
-    - [ ] 7.2 Create `Collaborator` JPA entity (composite PK `repo_id + user_id`) mapping `collaborators` table; create `CollaboratorRepository`
-    - [ ] 7.3 Implement `RepoService`: `createRepo(userId, CreateRepoRequest)` (check name uniqueness, create repo + default branch, return DTO), `getRepo(requesterId, owner, name)` (enforce visibility), `deleteRepo(requesterId, owner, name)` (OWNER check, cascade delete), `forkRepo(userId, owner, name)` (copy object refs, create new repo), `getStats(owner, name)` (object size sum, commit count, contributor count)
-    - [ ] 7.4 Implement `RepoController` (`@RestController @RequestMapping("/api/repos")`): `POST /` → createRepo, `GET /{owner}/{repo}` → getRepo, `DELETE /{owner}/{repo}` → deleteRepo, `POST /{owner}/{repo}/fork` → forkRepo, `GET /{owner}/{repo}/stats` → getStats; cache repo metadata in Redis at `repo:{id}:meta` TTL 60s
-    - [ ] 7.5 Create `Branch` JPA entity mapping `branches` table; create `BranchRepository` with `findByRepoIdAndName(Long, String)`
-    - [ ] 7.6 Implement `BranchService`: `createBranch(repoId, name, sourceSha)`, `listBranches(repoId)` (cached at `repo:{id}:branches` TTL 60s), `deleteBranch(repoId, name, requesterId)` (check protection), `toggleProtection(repoId, name, protect, requesterId)`
-    - [ ] 7.7 Implement `BranchController` (`@RequestMapping("/api/repos/{owner}/{repo}/branches")`): `GET /` → listBranches, `POST /` → createBranch, `DELETE /{name}` → deleteBranch, `PATCH /{name}/protect` → toggleProtection
-    - [ ] 7.8 Create `CommitMeta` JPA entity mapping `commits_meta` table; create `CommitMetaRepository` with `findByRepoIdOrderByAuthoredAtDesc(Long, Pageable)` and `findByRepoIdAndSha(Long, String)`
-    - [ ] 7.9 Implement `CommitController`: `GET /api/repos/{owner}/{repo}/commits/{branch}` (paginated, cached at `repo:{id}:commits:{branch}:{page}` TTL 30s), `GET /commits/{sha}` (full metadata + diff vs first parent), `GET /compare/{base}...{head}` (commits reachable from head not base + combined diff)
-    - [ ] 7.10 Write `RepoControllerIT`, `BranchControllerIT`, `CommitControllerIT` (Testcontainers + `MockMvc`): create repo, list branches, create branch, protect branch, reject delete of protected branch, paginated commit log, compare two branches
+    - [x] 7.1 Create `Repository` JPA entity mapping `repositories` table; create `RepoRepository` with `findByOwnerUsernameAndName(String, String)` and `findByOwnerId(Long)` methods
+    - [x] 7.2 Create `Collaborator` JPA entity (composite PK `repo_id + user_id`) mapping `collaborators` table; create `CollaboratorRepository`
+    - [x] 7.3 Implement `RepoService`: `createRepo(userId, CreateRepoRequest)` (check name uniqueness, create repo + default branch, return DTO), `getRepo(requesterId, owner, name)` (enforce visibility), `deleteRepo(requesterId, owner, name)` (OWNER check, cascade delete), `forkRepo(userId, owner, name)` (copy object refs, create new repo), `getStats(owner, name)` (object size sum, commit count, contributor count)
+    - [x] 7.4 Implement `RepoController` (`@RestController @RequestMapping("/api/repos")`): `POST /` → createRepo, `GET /{owner}/{repo}` → getRepo, `DELETE /{owner}/{repo}` → deleteRepo, `POST /{owner}/{repo}/fork` → forkRepo, `GET /{owner}/{repo}/stats` → getStats; cache repo metadata in Redis at `repo:{id}:meta` TTL 60s
+    - [x] 7.5 Create `Branch` JPA entity mapping `branches` table; create `BranchRepository` with `findByRepoIdAndName(Long, String)`
+    - [x] 7.6 Implement `BranchService`: `createBranch(repoId, name, sourceSha)`, `listBranches(repoId)` (cached at `repo:{id}:branches` TTL 60s), `deleteBranch(repoId, name, requesterId)` (check protection), `toggleProtection(repoId, name, protect, requesterId)`
+    - [x] 7.7 Implement `BranchController` (`@RequestMapping("/api/repos/{owner}/{repo}/branches")`): `GET /` → listBranches, `POST /` → createBranch, `DELETE /{name}` → deleteBranch, `PATCH /{name}/protect` → toggleProtection
+    - [x] 7.8 Create `CommitMeta` JPA entity mapping `commits_meta` table; create `CommitMetaRepository` with `findByRepoIdOrderByAuthoredAtDesc(Long, Pageable)` and `findByRepoIdAndSha(Long, String)`
+    - [x] 7.9 Implement `CommitController`: `GET /api/repos/{owner}/{repo}/commits/{branch}` (paginated, cached at `repo:{id}:commits:{branch}:{page}` TTL 30s), `GET /commits/{sha}` (full metadata + diff vs first parent), `GET /compare/{base}...{head}` (commits reachable from head not base + combined diff)
+    - [x] 7.10 Write `RepoControllerIT`, `BranchControllerIT`, `CommitControllerIT` (Testcontainers + `MockMvc`): create repo, list branches, create branch, protect branch, reject delete of protected branch, paginated commit log, compare two branches
 
 - [ ] 8. Tree & Blob REST APIs
   - **Requirement**: Req 7, Req 18, Req 19

@@ -1,4 +1,9 @@
 com\dvcs\auth\service\AuthServiceTest.class
+com\dvcs\repository\BranchControllerIT.class
+com\dvcs\TestApplication.class
 com\dvcs\auth\service\AuthServiceTest$Refresh.class
 com\dvcs\auth\service\AuthServiceTest$Register.class
 com\dvcs\auth\service\AuthServiceTest$Login.class
+com\dvcs\AbstractIntegrationTest.class
+com\dvcs\repository\CommitControllerIT.class
+com\dvcs\repository\RepoControllerIT.class

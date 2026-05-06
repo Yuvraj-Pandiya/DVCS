@@ -33,4 +33,20 @@ public interface CollaboratorRepository extends JpaRepository<Collaborator, Coll
      * @return {@code true} if a matching row exists
      */
     boolean existsByRepoIdAndUserIdAndRoleIn(Long repoId, Long userId, List<String> roles);
+
+    /**
+     * Finds all collaborators for a given repository.
+     *
+     * @param repoId the repository ID
+     * @return list of collaborators for the repository
+     */
+    List<Collaborator> findByRepoId(Long repoId);
+
+    /**
+     * Counts the number of collaborators for a repository.
+     *
+     * @param repoId the repository ID
+     * @return count of collaborators
+     */
+    long countByRepoId(Long repoId);
 }
