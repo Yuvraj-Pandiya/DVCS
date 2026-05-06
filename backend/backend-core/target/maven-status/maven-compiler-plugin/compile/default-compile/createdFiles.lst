@@ -7,6 +7,7 @@ com\dvcs\auth\service\JwtUtilImpl.class
 com\dvcs\auth\domain\User.class
 com\dvcs\auth\dto\PersonalTokenInfo.class
 com\dvcs\auth\dto\RegisterRequest.class
+com\dvcs\auth\controller\AuthController.class
 com\dvcs\common\security\JwtAuthenticationFilter.class
 com\dvcs\auth\service\PersonalTokenService.class
 com\dvcs\common\config\SecurityConfig.class
