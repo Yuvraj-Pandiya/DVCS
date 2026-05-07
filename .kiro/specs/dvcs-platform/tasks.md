@@ -95,22 +95,22 @@
     - [x] 8.3 Implement `PathValidator` (`@Component`): `validate(String path)` throws `PathTraversalException` (→ HTTP 400) if path contains `../`, `..\`, or URL-encoded equivalents `%2e%2e`
     - [x] 8.4 Write `TreeBlobControllerIT` (Testcontainers): push a commit with nested directory structure via `git push`, call tree API at root and subdirectory, call blob API for a text file and a binary file, verify raw endpoint streams correct bytes, verify `../` path returns 400
 
-- [ ] 9. Diff Engine
+- [x] 9. Diff Engine
   - **Requirement**: Req 9, Req 10
   - **Design section**: Diff Engine Design
   - Sub-tasks:
-    - [ ] 9.1 Create `DiffLine` record with fields `type` (enum: ADD, REMOVE, CONTEXT), `content` (String), `baseLineNo` (int), `headLineNo` (int)
-    - [ ] 9.2 Create `DiffHunk` class with fields `type`, `baseStart`, `baseEnd`, `headStart`, `headEnd`, `lines` (List<DiffLine>)
-    - [ ] 9.3 Implement `MyersDiff` (`com.dvcs.diff.algorithm`): `diff(String[] base, String[] head): List<DiffHunk>` using the O(ND) Myers shortest-edit-script algorithm; group consecutive edits into hunks with ±3 context lines; no external diff library
-    - [ ] 9.4 Implement `PatchApplier`: `apply(String[] base, List<DiffHunk> hunks): String[]` reconstructing the head file by applying ADD/REMOVE operations from hunks to base lines
-    - [ ] 9.5 Implement `BinaryDetector`: `isBinary(byte[] data): boolean` — returns true if any of the first 8,000 bytes is `\0` or if the byte sequence matches PNG (`\x89PNG`), PDF (`%PDF`), ZIP (`PK\x03\x04`), or ELF (`\x7fELF`) magic bytes
-    - [ ] 9.6 Implement `ThreeWayMerge`: `merge(String[] base, String[] ours, String[] theirs): MergeResult` — compute `diff(base, ours)` and `diff(base, theirs)`, apply non-overlapping hunks automatically, emit `<<<<<<< OURS / ======= / >>>>>>> THEIRS` conflict markers for overlapping hunks; `MergeResult` contains merged lines and `hasConflicts` flag
-    - [ ] 9.7 Implement `DiffService`: `textDiff(repoId, baseSha, headSha, filePath): List<DiffHunk>`, `binaryDiff(repoId, baseSha, headSha, filePath): BinaryDiffResult`, `threeWayMerge(repoId, baseSha, oursSha, theirsSha, filePath): MergeResult`
-    - [ ] 9.8 Implement `DiffController` (`GET /api/repos/{owner}/{repo}/diff?base=&head=&path=`): call `DiffService.textDiff` or `binaryDiff` based on `BinaryDetector`; return unified diff JSON or binary size delta
-    - [ ] 9.9 Write `MyersDiffTest` (JUnit 5): diff of two empty arrays returns empty list, diff of identical arrays returns only CONTEXT hunks, single-line change produces one hunk with one REMOVE + one ADD, multi-hunk diff on 50-line files, round-trip property `apply(A, diff(A,B)) == B` for 20 random string pairs
-    - [ ] 9.10 Write `ThreeWayMergeTest`: no-conflict auto-merge produces correct merged output, same-line conflict produces conflict markers, adjacent-line edits auto-merge without conflict
+    - [x] 9.1 Create `DiffLine` record with fields `type` (enum: ADD, REMOVE, CONTEXT), `content` (String), `baseLineNo` (int), `headLineNo` (int)
+    - [x] 9.2 Create `DiffHunk` class with fields `type`, `baseStart`, `baseEnd`, `headStart`, `headEnd`, `lines` (List<DiffLine>)
+    - [x] 9.3 Implement `MyersDiff` (`com.dvcs.diff.algorithm`): `diff(String[] base, String[] head): List<DiffHunk>` using the O(ND) Myers shortest-edit-script algorithm; group consecutive edits into hunks with ±3 context lines; no external diff library
+    - [x] 9.4 Implement `PatchApplier`: `apply(String[] base, List<DiffHunk> hunks): String[]` reconstructing the head file by applying ADD/REMOVE operations from hunks to base lines
+    - [x] 9.5 Implement `BinaryDetector`: `isBinary(byte[] data): boolean` — returns true if any of the first 8,000 bytes is `\0` or if the byte sequence matches PNG (`\x89PNG`), PDF (`%PDF`), ZIP (`PK\x03\x04`), or ELF (`\x7fELF`) magic bytes
+    - [x] 9.6 Implement `ThreeWayMerge`: `merge(String[] base, String[] ours, String[] theirs): MergeResult` — compute `diff(base, ours)` and `diff(base, theirs)`, apply non-overlapping hunks automatically, emit `<<<<<<< OURS / ======= / >>>>>>> THEIRS` conflict markers for overlapping hunks; `MergeResult` contains merged lines and `hasConflicts` flag
+    - [x] 9.7 Implement `DiffService`: `textDiff(repoId, baseSha, headSha, filePath): List<DiffHunk>`, `binaryDiff(repoId, baseSha, headSha, filePath): BinaryDiffResult`, `threeWayMerge(repoId, baseSha, oursSha, theirsSha, filePath): MergeResult`
+    - [x] 9.8 Implement `DiffController` (`GET /api/repos/{owner}/{repo}/diff?base=&head=&path=`): call `DiffService.textDiff` or `binaryDiff` based on `BinaryDetector`; return unified diff JSON or binary size delta
+    - [x] 9.9 Write `MyersDiffTest` (JUnit 5): diff of two empty arrays returns empty list, diff of identical arrays returns only CONTEXT hunks, single-line change produces one hunk with one REMOVE + one ADD, multi-hunk diff on 50-line files, round-trip property `apply(A, diff(A,B)) == B` for 20 random string pairs
+    - [x] 9.10 Write `ThreeWayMergeTest`: no-conflict auto-merge produces correct merged output, same-line conflict produces conflict markers, adjacent-line edits auto-merge without conflict
 
-- [ ] 10. Pull Request Module
+- [-] 10. Pull Request Module
   - **Requirement**: Req 10, Req 12, Req 14
   - **Design section**: Pull Request Merge Strategies
   - Sub-tasks:

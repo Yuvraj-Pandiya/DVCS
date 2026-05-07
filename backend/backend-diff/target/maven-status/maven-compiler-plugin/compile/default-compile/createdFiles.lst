@@ -1,1 +1,15 @@
 com\dvcs\diff\package-info.class
+com\dvcs\diff\service\DiffService.class
+com\dvcs\diff\algorithm\PatchApplier$1.class
+com\dvcs\diff\algorithm\ThreeWayMerge$BaseLineChange.class
+com\dvcs\diff\model\DiffLine.class
+com\dvcs\diff\model\LineType.class
+com\dvcs\diff\algorithm\BinaryDetector.class
+com\dvcs\diff\controller\DiffController$ErrorBody.class
+com\dvcs\diff\model\DiffHunk.class
+com\dvcs\diff\algorithm\ThreeWayMerge.class
+com\dvcs\diff\algorithm\PatchApplier.class
+com\dvcs\diff\service\BinaryDiffResult.class
+com\dvcs\diff\algorithm\MergeResult.class
+com\dvcs\diff\algorithm\MyersDiff.class
+com\dvcs\diff\controller\DiffController.class

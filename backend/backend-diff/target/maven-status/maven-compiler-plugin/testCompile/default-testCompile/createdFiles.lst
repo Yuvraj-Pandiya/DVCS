@@ -1,0 +1,15 @@
+com\dvcs\diff\algorithm\MyersDiffTest$SingleLineChange.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest$ConflictDetection.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest$AdjacentLineEdits.class
+com\dvcs\diff\algorithm\MyersDiffTest$RoundTrip.class
+com\dvcs\diff\algorithm\MyersDiffTest$HunkInvariants.class
+com\dvcs\diff\algorithm\MyersDiffTest$LineNumbers.class
+com\dvcs\diff\algorithm\MyersDiffTest.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest$NoConflict.class
+com\dvcs\diff\algorithm\MyersDiffTest$EmptyArrays.class
+com\dvcs\diff\algorithm\MyersDiffTest$MultiHunkDiff.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest$NullInputs.class
+com\dvcs\diff\algorithm\MyersDiffTest$IdenticalArrays.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest.class
+com\dvcs\diff\algorithm\MyersDiffTest$NullInputs.class
+com\dvcs\diff\algorithm\ThreeWayMergeTest$MergeResultApi.class

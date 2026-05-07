@@ -1,1 +1,12 @@
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\algorithm\MyersDiff.java
 X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\package-info.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\model\DiffLine.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\controller\DiffController.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\algorithm\BinaryDetector.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\model\DiffHunk.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\model\LineType.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\algorithm\PatchApplier.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\algorithm\ThreeWayMerge.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\service\DiffService.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\algorithm\MergeResult.java
+X:\DVCS\backend\backend-diff\src\main\java\com\dvcs\diff\service\BinaryDiffResult.java
