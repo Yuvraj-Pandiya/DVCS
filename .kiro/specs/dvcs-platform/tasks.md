@@ -154,22 +154,22 @@
     - [x] 13.3 Implement `PipelineController` (`@RequestMapping("/api/repos/{owner}/{repo}/pipelines")`): `GET /` → paginated list of `PipelineRun` DTOs, `GET /api/pipelines/{id}` → full run detail including `stagesJson` parsed to stage list
     - [x] 13.4 Write `PipelineControllerIT` (Testcontainers): trigger push event, poll pipeline list until status is SUCCESS or FAILURE (max 30s), verify stages JSON contains build and test entries with timing
 
-- [ ] 14. Notification Module & WebSocket
+- [x] 14. Notification Module & WebSocket
   - **Requirement**: Req 14
   - **Design section**: WebSocket Notifications Design
   - Sub-tasks:
-    - [ ] 14.1 Create `Notification` JPA entity mapping `notifications` table; create `NotificationRepository` with `findByUserIdAndReadFalseOrderByCreatedAtDesc(Long, Pageable)`
-    - [ ] 14.2 Implement `NotificationService`: `createNotification(userId, subjectType, subjectId, reason)` — save `Notification` record, then `redisTemplate.convertAndSend("events:" + userId, notificationJson)` via `StringRedisTemplate`
-    - [ ] 14.3 Implement `NotificationFanout` (`@Service implements MessageListener`): subscribe to Redis pattern `events:*` via `RedisMessageListenerContainer`; on message, parse `userId` from channel name, call `SimpMessagingTemplate.convertAndSendToUser(userId, "/queue/notifications", payload)`
-    - [ ] 14.4 Implement `WebSocketConfig` (`@Configuration @EnableWebSocketMessageBroker`): register STOMP endpoint `/ws/notifications` with SockJS fallback, configure message broker with `/topic` and `/queue` prefixes, add `ChannelInterceptor` to authenticate CONNECT frames via JWT
-    - [ ] 14.5 Implement `NotificationController` (`@RequestMapping("/api/notifications")`): `GET /` → paginated unread notifications for authenticated user, `PATCH /{id}/read` → set `read=true`, return 200
-    - [ ] 14.6 Write `NotificationControllerIT` (Testcontainers): create notification via service, call list endpoint, verify returned, mark as read, verify no longer in unread list
+    - [x] 14.1 Create `Notification` JPA entity mapping `notifications` table; create `NotificationRepository` with `findByUserIdAndReadFalseOrderByCreatedAtDesc(Long, Pageable)`
+    - [x] 14.2 Implement `NotificationService`: `createNotification(userId, subjectType, subjectId, reason)` — save `Notification` record, then `redisTemplate.convertAndSend("events:" + userId, notificationJson)` via `StringRedisTemplate`
+    - [x] 14.3 Implement `NotificationFanout` (`@Service implements MessageListener`): subscribe to Redis pattern `events:*` via `RedisMessageListenerContainer`; on message, parse `userId` from channel name, call `SimpMessagingTemplate.convertAndSendToUser(userId, "/queue/notifications", payload)`
+    - [x] 14.4 Implement `WebSocketConfig` (`@Configuration @EnableWebSocketMessageBroker`): register STOMP endpoint `/ws/notifications` with SockJS fallback, configure message broker with `/topic` and `/queue` prefixes, add `ChannelInterceptor` to authenticate CONNECT frames via JWT
+    - [x] 14.5 Implement `NotificationController` (`@RequestMapping("/api/notifications")`): `GET /` → paginated unread notifications for authenticated user, `PATCH /{id}/read` → set `read=true`, return 200
+    - [x] 14.6 Write `NotificationControllerIT` (Testcontainers): create notification via service, call list endpoint, verify returned, mark as read, verify no longer in unread list
 
-- [ ] 15. Search Module
+- [-] 15. Search Module
   - **Requirement**: Req 15
-  - **Design section**: Backend Package Structure
+  - **Design section**: Backend Package Structure 
   - Sub-tasks:
-    - [ ] 15.1 Implement `SearchService`: `searchRepositories(query, pageable)` — `SELECT * FROM repositories WHERE (name ILIKE '%{q}%' OR description ILIKE '%{q}%') AND is_private=false ORDER BY name`; `searchCode(query, pageable)` — scan `git_objects` of type BLOB in public repos, read content via `ObjectStoreService`, return `{repoOwner, repoName, filePath, snippet}` for matches; `searchUsers(query, pageable)` — `SELECT * FROM users WHERE username ILIKE '%{q}%' OR bio ILIKE '%{q}%'`
+    - [-] 15.1 Implement `SearchService`: `searchRepositories(query, pageable)` — `SELECT * FROM repositories WHERE (name ILIKE '%{q}%' OR description ILIKE '%{q}%') AND is_private=false ORDER BY name`; `searchCode(query, pageable)` — scan `git_objects` of type BLOB in public repos, read content via `ObjectStoreService`, return `{repoOwner, repoName, filePath, snippet}` for matches; `searchUsers(query, pageable)` — `SELECT * FROM users WHERE username ILIKE '%{q}%' OR bio ILIKE '%{q}%'`
     - [ ] 15.2 Implement `SearchController` (`GET /api/search?q=&type=repositories|code|users`): validate `q` length ≥ 2 (return 400 otherwise), dispatch to `SearchService` based on `type`, return paginated results
     - [ ] 15.3 Write `SearchControllerIT` (Testcontainers): create public repo with known name, search repositories → found, search with q < 2 chars → 400, search users by username → found, search code for known file content → returns snippet
 

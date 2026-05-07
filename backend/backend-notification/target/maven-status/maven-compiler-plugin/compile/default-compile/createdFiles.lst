@@ -1,1 +1,10 @@
+com\dvcs\notification\domain\Notification$NotificationBuilder.class
+com\dvcs\notification\config\WebSocketConfig.class
 com\dvcs\notification\package-info.class
+com\dvcs\notification\controller\NotificationController.class
+com\dvcs\notification\domain\Notification.class
+com\dvcs\notification\service\NotificationFanout.class
+com\dvcs\notification\service\NotificationService.class
+com\dvcs\notification\repository\NotificationRepository.class
+com\dvcs\notification\config\NotificationRedisConfig.class
+com\dvcs\notification\config\WebSocketConfig$1.class

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dvcs.notification.NotificationControllerIT
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 64.46 s -- in com.dvcs.notification.NotificationControllerIT

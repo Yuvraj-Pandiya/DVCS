@@ -146,7 +146,7 @@ public class SecurityConfig {
             //
             // addFilterBefore(A, B) inserts A immediately before B in the chain.
             // addFilterAfter(A, B)  inserts A immediately after  B in the chain.
-            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(personalTokenFilter, JwtAuthenticationFilter.class);
 
