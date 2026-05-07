@@ -22,6 +22,14 @@ public interface PrReviewRepository extends JpaRepository<PrReview, Long> {
     List<PrReview> findByPrId(Long prId);
 
     /**
+     * Finds all reviews for multiple pull requests.
+     *
+     * @param prIds list of pull request IDs
+     * @return list of reviews for all specified PRs
+     */
+    List<PrReview> findByPrIdIn(List<Long> prIds);
+
+    /**
      * Finds the most recent review submitted by a specific reviewer on a pull request.
      *
      * <p>Used to determine the latest verdict from each reviewer when computing

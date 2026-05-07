@@ -20,6 +20,20 @@ import { useApiClient, ApiError } from '../api/client'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface LabelDto {
+  id: number
+  name: string
+  color: string
+}
+
+interface ReviewStatusDto {
+  approveCount: number
+  changesRequestedCount: number
+  commentCount: number
+  hasApproval: boolean
+  hasChangesRequested: boolean
+}
+
 interface PullRequestDto {
   id: number
   number: number
@@ -32,11 +46,13 @@ interface PullRequestDto {
   status: 'open' | 'closed' | 'merged'
   mergedAt: string | null
   createdAt: string
+  labels: LabelDto[]
+  reviewStatus: ReviewStatusDto
 }
 
 interface PullRequestListResponse {
-  pullRequests: PullRequestDto[]
-  page: number
+  content: PullRequestDto[]
+  number: number
   size: number
   totalElements: number
   totalPages: number
@@ -63,6 +79,95 @@ function formatRelativeTime(timestamp: string): string {
 /** Generate initials from username for avatar fallback. */
 function getInitials(username: string): string {
   return username.slice(0, 2).toUpperCase()
+}
+
+// ─── LabelBadge Component ─────────────────────────────────────────────────────
+
+interface LabelBadgeProps {
+  label: LabelDto
+}
+
+function LabelBadge({ label }: LabelBadgeProps) {
+  return (
+    <span
+      className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded"
+      style={{
+        backgroundColor: `${label.color}20`,
+        color: label.color,
+        borderColor: label.color,
+        borderWidth: '1px',
+      }}
+    >
+      {label.name}
+    </span>
+  )
+}
+
+// ─── ReviewStatusIcon Component ───────────────────────────────────────────────
+
+interface ReviewStatusIconProps {
+  reviewStatus: ReviewStatusDto
+}
+
+function ReviewStatusIcon({ reviewStatus }: ReviewStatusIconProps) {
+  if (reviewStatus.hasChangesRequested) {
+    return (
+      <div
+        className="flex items-center gap-1 text-red-400"
+        title={`${reviewStatus.changesRequestedCount} change(s) requested`}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span className="text-xs">{reviewStatus.changesRequestedCount}</span>
+      </div>
+    )
+  }
+
+  if (reviewStatus.hasApproval) {
+    return (
+      <div
+        className="flex items-center gap-1 text-green-400"
+        title={`${reviewStatus.approveCount} approval(s)`}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span className="text-xs">{reviewStatus.approveCount}</span>
+      </div>
+    )
+  }
+
+  if (reviewStatus.commentCount > 0) {
+    return (
+      <div
+        className="flex items-center gap-1 text-gray-400"
+        title={`${reviewStatus.commentCount} comment(s)`}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+        <span className="text-xs">{reviewStatus.commentCount}</span>
+      </div>
+    )
+  }
+
+  return null
 }
 
 // ─── StatusBadge Component ────────────────────────────────────────────────────
@@ -162,7 +267,7 @@ function PullRequestRow({ pr, owner, repo }: PullRequestRowProps) {
           <StatusBadge status={pr.status} />
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-gray-500">
+        <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
           <span>
             #{pr.number} opened {formatRelativeTime(pr.createdAt)} by{' '}
             <span className="text-gray-400">{pr.authorUsername}</span>
@@ -177,6 +282,18 @@ function PullRequestRow({ pr, owner, repo }: PullRequestRowProps) {
               <span>merged {formatRelativeTime(pr.mergedAt)}</span>
             </>
           )}
+        </div>
+
+        {/* Labels and review status */}
+        <div className="flex items-center gap-3">
+          {pr.labels.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {pr.labels.map((label) => (
+                <LabelBadge key={label.id} label={label} />
+              ))}
+            </div>
+          )}
+          <ReviewStatusIcon reviewStatus={pr.reviewStatus} />
         </div>
       </div>
     </div>
@@ -229,7 +346,7 @@ export default function PullRequestListPage() {
     },
   })
 
-  const pullRequests = data?.pullRequests ?? []
+  const pullRequests = data?.content ?? []
   const totalElements = data?.totalElements ?? 0
 
   // ── 404 state ──────────────────────────────────────────────────────────────

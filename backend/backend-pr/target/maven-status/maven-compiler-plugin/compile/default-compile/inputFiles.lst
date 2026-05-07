@@ -14,3 +14,4 @@ X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\package-info.java
 X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\controller\PullRequestController.java
 X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\domain\PrComment.java
 X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\SubmitReviewRequest.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\PrListItemDto.java

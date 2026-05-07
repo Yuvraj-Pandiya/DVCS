@@ -11,6 +11,7 @@ import com.dvcs.pullrequest.domain.PullRequest;
 import com.dvcs.pullrequest.dto.AddCommentRequest;
 import com.dvcs.pullrequest.dto.CreatePrRequest;
 import com.dvcs.pullrequest.dto.PrDetailResponse;
+import com.dvcs.pullrequest.dto.PrListItemDto;
 import com.dvcs.pullrequest.dto.SubmitReviewRequest;
 import com.dvcs.pullrequest.repository.PrCommentRepository;
 import com.dvcs.pullrequest.service.MergeStrategyService;
@@ -113,11 +114,11 @@ public class PullRequestController {
      * @param status the PR status filter (default: "open")
      * @param page   the page number (0-based, default: 0)
      * @param size   the page size (default: 20)
-     * @return HTTP 200 with a page of pull requests
+     * @return HTTP 200 with a page of pull request DTOs
      */
     @GetMapping
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
-    public ResponseEntity<Page<PullRequest>> listPrs(
+    public ResponseEntity<Page<PrListItemDto>> listPrs(
             @PathVariable String owner,
             @PathVariable String repo,
             @RequestParam(defaultValue = "open") String status,
@@ -126,7 +127,7 @@ public class PullRequestController {
 
         Long repoId = resolveRepoId(owner, repo);
         Pageable pageable = PageRequest.of(page, size);
-        Page<PullRequest> prs = pullRequestService.listPrs(repoId, status, pageable);
+        Page<PrListItemDto> prs = pullRequestService.listPrs(repoId, status, pageable);
         return ResponseEntity.ok(prs);
     }
 

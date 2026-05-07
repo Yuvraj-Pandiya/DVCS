@@ -1,5 +1,7 @@
 package com.dvcs.pullrequest.service;
 
+import com.dvcs.auth.domain.User;
+import com.dvcs.auth.repository.UserRepository;
 import com.dvcs.common.exception.EntityNotFoundException;
 import com.dvcs.common.exception.InvalidRequestException;
 import com.dvcs.common.validation.InputSanitizer;
@@ -10,6 +12,7 @@ import com.dvcs.pullrequest.domain.PrReview;
 import com.dvcs.pullrequest.domain.PullRequest;
 import com.dvcs.pullrequest.dto.CreatePrRequest;
 import com.dvcs.pullrequest.dto.PrDetailResponse;
+import com.dvcs.pullrequest.dto.PrListItemDto;
 import com.dvcs.pullrequest.repository.PrCommentRepository;
 import com.dvcs.pullrequest.repository.PrReviewRepository;
 import com.dvcs.pullrequest.repository.PullRequestRepository;
@@ -18,14 +21,19 @@ import com.dvcs.repository.repository.BranchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing pull request lifecycle operations.
@@ -47,19 +55,22 @@ public class PullRequestService {
     private final BranchRepository branchRepository;
     private final DiffService diffService;
     private final InputSanitizer inputSanitizer;
+    private final UserRepository userRepository;
 
     public PullRequestService(PullRequestRepository pullRequestRepository,
                                PrReviewRepository prReviewRepository,
                                PrCommentRepository prCommentRepository,
                                BranchRepository branchRepository,
                                DiffService diffService,
-                               InputSanitizer inputSanitizer) {
+                               InputSanitizer inputSanitizer,
+                               UserRepository userRepository) {
         this.pullRequestRepository = pullRequestRepository;
         this.prReviewRepository = prReviewRepository;
         this.prCommentRepository = prCommentRepository;
         this.branchRepository = branchRepository;
         this.diffService = diffService;
         this.inputSanitizer = inputSanitizer;
+        this.userRepository = userRepository;
     }
 
     // =========================================================================
@@ -103,14 +114,112 @@ public class PullRequestService {
     /**
      * Lists pull requests for a repository filtered by status.
      *
+     * <p>Returns enriched DTOs with author username, labels, and review status.
+     *
      * @param repoId   the repository ID
      * @param status   the PR status filter (open, closed, merged)
      * @param pageable pagination parameters
-     * @return page of pull requests
+     * @return page of enriched pull request DTOs
      */
     @Transactional(readOnly = true)
-    public Page<PullRequest> listPrs(Long repoId, String status, Pageable pageable) {
-        return pullRequestRepository.findByRepoIdAndStatus(repoId, status, pageable);
+    public Page<PrListItemDto> listPrs(Long repoId, String status, Pageable pageable) {
+        Page<PullRequest> prPage = pullRequestRepository.findByRepoIdAndStatus(repoId, status, pageable);
+        
+        if (prPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // Collect all author IDs
+        Set<Long> authorIds = prPage.getContent().stream()
+                .map(PullRequest::getAuthorId)
+                .collect(Collectors.toSet());
+
+        // Fetch all authors in one query
+        Map<Long, String> authorUsernameMap = userRepository.findAllById(authorIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        // Collect all PR IDs for review status lookup
+        List<Long> prIds = prPage.getContent().stream()
+                .map(PullRequest::getId)
+                .toList();
+
+        // Fetch review counts for all PRs in one query
+        Map<Long, PrListItemDto.ReviewStatusDto> reviewStatusMap = buildReviewStatusMap(prIds);
+
+        // Transform to DTOs
+        List<PrListItemDto> dtos = prPage.getContent().stream()
+                .map(pr -> new PrListItemDto(
+                        pr.getId(),
+                        pr.getNumber(),
+                        pr.getTitle(),
+                        pr.getBody(),
+                        pr.getHeadBranch(),
+                        pr.getBaseBranch(),
+                        pr.getAuthorId(),
+                        authorUsernameMap.getOrDefault(pr.getAuthorId(), "unknown"),
+                        pr.getStatus(),
+                        pr.getMergedAt(),
+                        pr.getCreatedAt(),
+                        Collections.emptyList(), // TODO: fetch labels when pr_labels table is populated
+                        reviewStatusMap.getOrDefault(pr.getId(), emptyReviewStatus())
+                ))
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, prPage.getTotalElements());
+    }
+
+    /**
+     * Builds a map of PR ID to review status summary.
+     *
+     * @param prIds list of PR IDs
+     * @return map of PR ID to ReviewStatusDto
+     */
+    private Map<Long, PrListItemDto.ReviewStatusDto> buildReviewStatusMap(List<Long> prIds) {
+        if (prIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<PrReview> allReviews = prReviewRepository.findByPrIdIn(prIds);
+        
+        Map<Long, PrListItemDto.ReviewStatusDto> statusMap = new HashMap<>();
+        
+        // Group reviews by PR ID
+        Map<Long, List<PrReview>> reviewsByPr = allReviews.stream()
+                .collect(Collectors.groupingBy(PrReview::getPrId));
+
+        // Calculate status for each PR
+        for (Long prId : prIds) {
+            List<PrReview> reviews = reviewsByPr.getOrDefault(prId, Collections.emptyList());
+            
+            int approveCount = 0;
+            int changesRequestedCount = 0;
+            int commentCount = 0;
+
+            for (PrReview review : reviews) {
+                switch (review.getVerdict()) {
+                    case "APPROVE" -> approveCount++;
+                    case "CHANGES_REQUESTED" -> changesRequestedCount++;
+                    case "COMMENT" -> commentCount++;
+                }
+            }
+
+            statusMap.put(prId, new PrListItemDto.ReviewStatusDto(
+                    approveCount,
+                    changesRequestedCount,
+                    commentCount,
+                    approveCount > 0,
+                    changesRequestedCount > 0
+            ));
+        }
+
+        return statusMap;
+    }
+
+    /**
+     * Returns an empty review status (no reviews).
+     */
+    private PrListItemDto.ReviewStatusDto emptyReviewStatus() {
+        return new PrListItemDto.ReviewStatusDto(0, 0, 0, false, false);
     }
 
     /**

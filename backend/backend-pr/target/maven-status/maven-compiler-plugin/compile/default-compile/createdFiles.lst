@@ -1,5 +1,7 @@
 com\dvcs\pullrequest\dto\PrDetailResponse.class
+com\dvcs\pullrequest\dto\PrListItemDto$ReviewStatusDto.class
 com\dvcs\pullrequest\domain\PrReview$PrReviewBuilder.class
+com\dvcs\pullrequest\dto\PrListItemDto.class
 com\dvcs\pullrequest\service\PullRequestService.class
 com\dvcs\pullrequest\repository\PrCommentRepository.class
 com\dvcs\pullrequest\repository\PrReviewRepository.class
@@ -10,6 +12,7 @@ com\dvcs\pullrequest\service\MergeStrategyService.class
 com\dvcs\pullrequest\dto\SubmitReviewRequest.class
 com\dvcs\pullrequest\repository\PullRequestRepository.class
 com\dvcs\pullrequest\service\NotificationPort.class
+com\dvcs\pullrequest\dto\PrListItemDto$LabelDto.class
 com\dvcs\pullrequest\domain\PrReview.class
 com\dvcs\pullrequest\domain\PrComment.class
 com\dvcs\pullrequest\dto\AddCommentRequest.class

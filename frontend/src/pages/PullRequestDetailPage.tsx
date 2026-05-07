@@ -192,6 +192,95 @@ function ReviewTimeline({ reviews, comments }: ReviewTimelineProps) {
   )
 }
 
+// ─── ReviewSubmitForm Component ───────────────────────────────────────────────
+
+interface ReviewSubmitFormProps {
+  owner: string
+  repo: string
+  prNumber: number
+  onReviewSubmitted: () => void
+}
+
+function ReviewSubmitForm({ owner, repo, prNumber, onReviewSubmitted }: ReviewSubmitFormProps) {
+  const [verdict, setVerdict] = useState<'APPROVE' | 'CHANGES_REQUESTED' | 'COMMENT'>('COMMENT')
+  const [body, setBody] = useState('')
+  const api = useApiClient()
+  const queryClient = useQueryClient()
+
+  const submitReviewMutation = useMutation({
+    mutationFn: () =>
+      api.post(`/api/repos/${owner}/${repo}/pulls/${prNumber}/review`, {
+        verdict,
+        body: body.trim() || null,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pr-detail', owner, repo, prNumber] })
+      setBody('')
+      setVerdict('COMMENT')
+      onReviewSubmitted()
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    submitReviewMutation.mutate()
+  }
+
+  return (
+    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">Submit review</h3>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Verdict selector */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Review verdict</label>
+          <select
+            value={verdict}
+            onChange={(e) => setVerdict(e.target.value as typeof verdict)}
+            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={submitReviewMutation.isPending}
+          >
+            <option value="COMMENT">Comment</option>
+            <option value="APPROVE">Approve</option>
+            <option value="CHANGES_REQUESTED">Request changes</option>
+          </select>
+        </div>
+
+        {/* Comment textarea */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Review comment {verdict === 'COMMENT' ? '(required)' : '(optional)'}
+          </label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Leave a comment..."
+            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            rows={4}
+            disabled={submitReviewMutation.isPending}
+          />
+        </div>
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          disabled={submitReviewMutation.isPending || (verdict === 'COMMENT' && !body.trim())}
+          className="w-full px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-500 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitReviewMutation.isPending ? 'Submitting...' : 'Submit review'}
+        </button>
+
+        {/* Error message */}
+        {submitReviewMutation.isError && (
+          <div className="p-3 bg-red-900/20 border border-red-700 rounded text-sm text-red-300">
+            Failed to submit review. Please try again.
+          </div>
+        )}
+      </form>
+    </div>
+  )
+}
+
 // ─── MergeControls Component ──────────────────────────────────────────────────
 
 interface MergeControlsProps {
@@ -403,7 +492,13 @@ export default function PullRequestDetailPage() {
             {/* Diff viewer */}
             <div>
               <h2 className="text-lg font-semibold text-gray-100 mb-4">Changes</h2>
-              <DiffViewer hunks={pr.diff} />
+              <DiffViewer 
+                hunks={pr.diff} 
+                comments={pr.comments}
+                owner={owner}
+                repo={repo}
+                prNumber={prNumber}
+              />
             </div>
 
             {/* Review timeline */}
@@ -415,8 +510,21 @@ export default function PullRequestDetailPage() {
             </div>
           </div>
 
-          {/* Sidebar (merge controls) */}
-          <div className="lg:col-span-1">
+          {/* Sidebar (review form + merge controls) */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Review submit form (only for open PRs) */}
+            {pr.status === 'open' && (
+              <ReviewSubmitForm
+                owner={owner!}
+                repo={repo!}
+                prNumber={prNumber}
+                onReviewSubmitted={() => {
+                  // Optionally show a success message
+                }}
+              />
+            )}
+
+            {/* Merge controls */}
             <MergeControls
               pr={pr}
               owner={owner!}
