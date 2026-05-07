@@ -183,17 +183,17 @@
     - [x] 16.4 Create `AuditLog` JPA entity mapping `audit_logs` table; implement `AuditLogService.record(actorId, action, resourceType, resourceId, ip)` saving an `AuditLog` row; annotate sensitive methods (login, push, deleteRepo, mergePr) with a custom `@Audited` AOP aspect that calls `AuditLogService`
     - [x] 16.5 Write `RateLimitIT` (Testcontainers): send 11 requests to `/api/auth/login` within 1 minute from same IP, verify 11th returns 429 with `Retry-After` header; send 61 unauthenticated requests, verify 61st returns 429
 
-- [ ] 17. React Frontend — Core Setup
+- [x] 17. React Frontend — Core Setup
   - **Requirement**: Req 20, Req 21, Req 22
   - **Design section**: Frontend Architecture
   - Sub-tasks:
-    - [~] 17.1 Initialize Vite project under `frontend/` with `npm create vite@latest -- --template react-ts`; install `tailwindcss`, `postcss`, `autoprefixer`, `react-router-dom@6`, `@tanstack/react-query`, `@stomp/stompjs`, `sockjs-client`, `fuse.js`, `prismjs`, `@types/prismjs`; configure `tailwind.config.ts` and `postcss.config.js`
-    - [~] 17.2 Implement `AuthContext` (`src/context/AuthContext.tsx`): store `accessToken` in memory (not localStorage), `user` object, `login(credentials)` action (POST `/api/auth/login`, store token), `logout()` action (clear token, redirect `/login`), `refresh()` action (POST `/api/auth/refresh`, update token); export `useAuth()` hook
-    - [~] 17.3 Implement `apiClient` (`src/api/client.ts`): typed wrapper over `fetch` with methods `get<T>`, `post<T>`, `patch<T>`, `delete<T>`; inject `Authorization: Bearer {token}` from `AuthContext`; on 401 response attempt one silent `refresh()` then retry; on second 401 redirect to `/login`
-    - [~] 17.4 Configure `QueryClientProvider` in `src/main.tsx` wrapping the app; set default `staleTime: 30_000` and `retry: 1`
-    - [~] 17.5 Implement `AppShell` layout component (`src/components/layout/AppShell.tsx`): top navigation bar with logo, search input, notification bell, user avatar dropdown; left sidebar for repo navigation (visible on repo pages); `<Outlet />` for page content
-    - [~] 17.6 Implement `ProtectedRoute` component: wraps routes requiring authentication; redirects to `/login` if `AuthContext.accessToken` is null
-    - [~] 17.7 Implement `NotificationBell` component (`src/components/NotificationBell.tsx`) and `useNotifications` hook (`src/hooks/useNotifications.ts`): connect to STOMP endpoint `/ws/notifications` using `@stomp/stompjs`; subscribe to `/user/queue/notifications`; maintain unread count in state; display badge; on click show dropdown list of recent notifications
+    - [x] 17.1 Initialize Vite project under `frontend/` with `npm create vite@latest -- --template react-ts`; install `tailwindcss`, `postcss`, `autoprefixer`, `react-router-dom@6`, `@tanstack/react-query`, `@stomp/stompjs`, `sockjs-client`, `fuse.js`, `prismjs`, `@types/prismjs`; configure `tailwind.config.ts` and `postcss.config.js`
+    - [x] 17.2 Implement `AuthContext` (`src/context/AuthContext.tsx`): store `accessToken` in memory (not localStorage), `user` object, `login(credentials)` action (POST `/api/auth/login`, store token), `logout()` action (clear token, redirect `/login`), `refresh()` action (POST `/api/auth/refresh`, update token); export `useAuth()` hook
+    - [x] 17.3 Implement `apiClient` (`src/api/client.ts`): typed wrapper over `fetch` with methods `get<T>`, `post<T>`, `patch<T>`, `delete<T>`; inject `Authorization: Bearer {token}` from `AuthContext`; on 401 response attempt one silent `refresh()` then retry; on second 401 redirect to `/login`
+    - [x] 17.4 Configure `QueryClientProvider` in `src/main.tsx` wrapping the app; set default `staleTime: 30_000` and `retry: 1`
+    - [x] 17.5 Implement `AppShell` layout component (`src/components/layout/AppShell.tsx`): top navigation bar with logo, search input, notification bell, user avatar dropdown; left sidebar for repo navigation (visible on repo pages); `<Outlet />` for page content
+    - [x] 17.6 Implement `ProtectedRoute` component: wraps routes requiring authentication; redirects to `/login` if `AuthContext.accessToken` is null
+    - [x] 17.7 Implement `NotificationBell` component (`src/components/NotificationBell.tsx`) and `useNotifications` hook (`src/hooks/useNotifications.ts`): connect to STOMP endpoint `/ws/notifications` using `@stomp/stompjs`; subscribe to `/user/queue/notifications`; maintain unread count in state; display badge; on click show dropdown list of recent notifications
 
 - [ ] 18. React Frontend — Auth & User Pages
   - **Requirement**: Req 20
