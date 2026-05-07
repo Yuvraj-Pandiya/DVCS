@@ -9,6 +9,7 @@ com\dvcs\git\transport\StubRepoLookupService.class
 com\dvcs\git\ref\Branch.class
 com\dvcs\git\transport\ProtectedBranchException.class
 com\dvcs\git\pack\PackFileDecoder$TypeSizeResult.class
+com\dvcs\git\service\GitObjectReaderServiceImpl.class
 com\dvcs\git\storage\LocalFsBackend.class
 com\dvcs\git\package-info.class
 com\dvcs\git\storage\ObjectStoreService.class

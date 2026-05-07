@@ -402,7 +402,7 @@ public class UploadPackServiceImpl implements UploadPackService {
      * @return the parsed {@link CommitObject}
      * @throws IllegalArgumentException if the bytes cannot be parsed as a commit
      */
-    static CommitObject parseCommit(byte[] raw) {
+    public static CommitObject parseCommit(byte[] raw) {
         String text = new String(raw, StandardCharsets.UTF_8);
 
         // Skip "commit {size}\0" header
@@ -495,7 +495,7 @@ public class UploadPackServiceImpl implements UploadPackService {
      * @return the parsed {@link TreeObject}
      * @throws IllegalArgumentException if the bytes cannot be parsed as a tree
      */
-    static TreeObject parseTree(byte[] raw) {
+    public static TreeObject parseTree(byte[] raw) {
         // Find the NUL separator after "tree {size}"
         int nulIdx = -1;
         for (int i = 0; i < raw.length; i++) {

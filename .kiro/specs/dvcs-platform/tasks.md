@@ -86,14 +86,14 @@
     - [x] 7.9 Implement `CommitController`: `GET /api/repos/{owner}/{repo}/commits/{branch}` (paginated, cached at `repo:{id}:commits:{branch}:{page}` TTL 30s), `GET /commits/{sha}` (full metadata + diff vs first parent), `GET /compare/{base}...{head}` (commits reachable from head not base + combined diff)
     - [x] 7.10 Write `RepoControllerIT`, `BranchControllerIT`, `CommitControllerIT` (Testcontainers + `MockMvc`): create repo, list branches, create branch, protect branch, reject delete of protected branch, paginated commit log, compare two branches
 
-- [ ] 8. Tree & Blob REST APIs
+- [x] 8. Tree & Blob REST APIs
   - **Requirement**: Req 7, Req 18, Req 19
   - **Design section**: Backend Package Structure
   - Sub-tasks:
-    - [ ] 8.1 Implement `TreeController` (`GET /api/repos/{owner}/{repo}/tree/{ref}/{*path}`): resolve ref → `commits_meta.sha` → `CommitObject.treeSha` → walk `TreeObject` entries along path segments; return JSON array of `{name, type, size, lastCommitSha, lastCommitMessage}`
-    - [ ] 8.2 Implement `BlobController`: `GET /api/repos/{owner}/{repo}/blob/{ref}/{*path}` returns `{content (base64), size, encoding, lastCommitSha}` with Redis cache at `blob:{repoId}:{sha}` TTL 3600s; `GET /raw/{ref}/{*path}` streams raw bytes with `Content-Type` detection
-    - [ ] 8.3 Implement `PathValidator` (`@Component`): `validate(String path)` throws `PathTraversalException` (→ HTTP 400) if path contains `../`, `..\`, or URL-encoded equivalents `%2e%2e`
-    - [ ] 8.4 Write `TreeBlobControllerIT` (Testcontainers): push a commit with nested directory structure via `git push`, call tree API at root and subdirectory, call blob API for a text file and a binary file, verify raw endpoint streams correct bytes, verify `../` path returns 400
+    - [x] 8.1 Implement `TreeController` (`GET /api/repos/{owner}/{repo}/tree/{ref}/{*path}`): resolve ref → `commits_meta.sha` → `CommitObject.treeSha` → walk `TreeObject` entries along path segments; return JSON array of `{name, type, size, lastCommitSha, lastCommitMessage}`
+    - [x] 8.2 Implement `BlobController`: `GET /api/repos/{owner}/{repo}/blob/{ref}/{*path}` returns `{content (base64), size, encoding, lastCommitSha}` with Redis cache at `blob:{repoId}:{sha}` TTL 3600s; `GET /raw/{ref}/{*path}` streams raw bytes with `Content-Type` detection
+    - [x] 8.3 Implement `PathValidator` (`@Component`): `validate(String path)` throws `PathTraversalException` (→ HTTP 400) if path contains `../`, `..\`, or URL-encoded equivalents `%2e%2e`
+    - [x] 8.4 Write `TreeBlobControllerIT` (Testcontainers): push a commit with nested directory structure via `git push`, call tree API at root and subdirectory, call blob API for a text file and a binary file, verify raw endpoint streams correct bytes, verify `../` path returns 400
 
 - [ ] 9. Diff Engine
   - **Requirement**: Req 9, Req 10

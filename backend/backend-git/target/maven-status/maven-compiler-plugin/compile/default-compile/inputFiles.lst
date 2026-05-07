@@ -10,6 +10,7 @@ X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\commit\CommitMeta.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\commit\CommitMetaRepository.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\ref\BranchRepository.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\ref\Branch.java
+X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\service\GitObjectReaderServiceImpl.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\transport\StubReceivePackService.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\transport\StubRepoLookupService.java
 X:\DVCS\backend\backend-git\src\main\java\com\dvcs\git\transport\UploadPackService.java

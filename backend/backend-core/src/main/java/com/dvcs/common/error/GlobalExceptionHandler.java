@@ -109,6 +109,13 @@ public class GlobalExceptionHandler {
                 .body(ErrorEnvelope.of("BAD_REQUEST", ex.getMessage()));
     }
 
+    @ExceptionHandler(com.dvcs.common.exception.PathTraversalException.class)
+    public ResponseEntity<ErrorEnvelope> handlePathTraversal(
+            com.dvcs.common.exception.PathTraversalException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorEnvelope.of("PATH_TRAVERSAL", ex.getMessage()));
+    }
+
     // -------------------------------------------------------------------------
     // 500 Internal Server Error — catch-all
     // -------------------------------------------------------------------------
