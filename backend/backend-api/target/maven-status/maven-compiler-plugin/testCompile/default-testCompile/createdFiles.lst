@@ -3,6 +3,7 @@ com\dvcs\pullrequest\PullRequestControllerIT.class
 com\dvcs\notification\NotificationControllerIT.class
 com\dvcs\pipeline\PipelineControllerIT.class
 com\dvcs\repository\BranchControllerIT.class
+com\dvcs\openapi\OpenApiIT.class
 com\dvcs\auth\AuthControllerIT.class
 com\dvcs\webhook\WebhookControllerIT.class
 com\dvcs\search\SearchControllerIT.class

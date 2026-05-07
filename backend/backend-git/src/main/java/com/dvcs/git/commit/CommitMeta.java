@@ -17,8 +17,13 @@ import java.time.OffsetDateTime;
  * object store.
  *
  * <p>Requirement 6: HTTP Smart Git Transport — commit metadata persistence on push.
+ *
+ * <p>Note: The entity name is explicitly set to {@code GitCommitMeta} to avoid a
+ * {@code DuplicateMappingException} with {@code com.dvcs.repository.domain.CommitMeta}
+ * which also maps the same table. Both entities are functionally equivalent; this one
+ * is used by the git transport layer.
  */
-@Entity
+@Entity(name = "GitCommitMeta")
 @Table(name = "commits_meta")
 public class CommitMeta {
 

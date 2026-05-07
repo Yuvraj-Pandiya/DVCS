@@ -16,6 +16,10 @@ import com.dvcs.webhook.dto.WebhookResponse;
 import com.dvcs.webhook.repository.WebhookRepository;
 import com.dvcs.webhook.service.WebhookDeliveryService;
 import com.dvcs.webhook.service.WebhookService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +51,7 @@ import java.util.Map;
  *
  * <p>Requirement 12: Webhook Management and Delivery.
  */
+@Tag(name = "Webhooks", description = "Webhook management and delivery operations")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}/webhooks")
 public class WebhookController {
@@ -87,6 +92,14 @@ public class WebhookController {
      * @param authentication the current authentication
      * @return HTTP 201 with the created webhook (secret excluded)
      */
+    @Operation(summary = "Create a new webhook for the repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Webhook created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WebhookResponse> createWebhook(
@@ -113,6 +126,13 @@ public class WebhookController {
      * @param authentication the current authentication
      * @return HTTP 200 with the list of webhooks (secrets excluded)
      */
+    @Operation(summary = "List all webhooks for the repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Webhook list returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<WebhookResponse>> listWebhooks(
@@ -140,6 +160,14 @@ public class WebhookController {
      * @param authentication the current authentication
      * @return HTTP 200 with the updated webhook (secret excluded)
      */
+    @Operation(summary = "Update an existing webhook")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Webhook updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or webhook not found")
+    })
     @PatchMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WebhookResponse> updateWebhook(
@@ -167,6 +195,13 @@ public class WebhookController {
      * @param authentication the current authentication
      * @return HTTP 204 No Content
      */
+    @Operation(summary = "Delete a webhook")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Webhook deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or webhook not found")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteWebhook(
@@ -193,6 +228,13 @@ public class WebhookController {
      * @param authentication the current authentication
      * @return HTTP 200 with the delivery result
      */
+    @Operation(summary = "Send a synthetic ping to the webhook URL and return the delivery result")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ping delivered, result returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or webhook not found")
+    })
     @PostMapping("/{id}/test")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<DeliveryResult> testWebhook(

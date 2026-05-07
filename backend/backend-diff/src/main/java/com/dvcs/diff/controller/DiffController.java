@@ -15,6 +15,10 @@ import com.dvcs.repository.repository.BranchRepository;
 import com.dvcs.repository.repository.CommitMetaRepository;
 import com.dvcs.repository.repository.RepoRepository;
 import com.dvcs.repository.service.GitObjectReaderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +55,7 @@ import java.util.Objects;
  *
  * <p>Requirement 9.8: Diff Engine — DiffController.
  */
+@Tag(name = "Diff", description = "Compute diffs between commits or refs")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}")
 public class DiffController {
@@ -100,6 +105,14 @@ public class DiffController {
      * @return HTTP 200 with a list of {@link DiffHunk}s (text) or a
      *         {@link BinaryDiffResult} (binary)
      */
+    @Operation(summary = "Compute diff between two refs for a specific file path")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Diff computed and returned"),
+        @ApiResponse(responseCode = "400", description = "Missing or invalid path parameter"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository, ref, or file path not found")
+    })
     @GetMapping("/diff")
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<Object> getDiff(

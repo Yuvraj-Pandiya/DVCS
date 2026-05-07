@@ -16,8 +16,13 @@ import java.time.OffsetDateTime;
  * development within a repository.
  *
  * <p>Requirement 5: Branch and Tag Reference Management.
+ *
+ * <p>Note: The entity name is explicitly set to {@code GitBranch} to avoid a
+ * {@code DuplicateMappingException} with {@code com.dvcs.repository.domain.Branch}
+ * which also maps the same table. Both entities are functionally equivalent; this one
+ * is used by the git transport layer.
  */
-@Entity
+@Entity(name = "GitBranch")
 @Table(name = "branches")
 public class Branch {
 

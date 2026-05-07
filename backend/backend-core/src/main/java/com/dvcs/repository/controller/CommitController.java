@@ -10,6 +10,10 @@ import com.dvcs.repository.repository.CommitMetaRepository;
 import com.dvcs.repository.repository.RepoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -40,6 +44,7 @@ import java.util.stream.Collectors;
  *
  * <p>Commit log pages are cached at {@code repo:{id}:commits:{branch}:{page}} with TTL 30s.
  */
+@Tag(name = "Commits", description = "Commit history and comparison operations")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}")
 public class CommitController {
@@ -84,6 +89,11 @@ public class CommitController {
      * @param size   the page size (default 20)
      * @return HTTP 200 with paginated commit list
      */
+    @Operation(summary = "Get paginated commit log for a branch")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Commit log returned"),
+        @ApiResponse(responseCode = "404", description = "Repository or branch not found")
+    })
     @GetMapping("/commits/{branch}")
     public ResponseEntity<Map<String, Object>> getCommitLog(
             @PathVariable String owner,
@@ -150,6 +160,11 @@ public class CommitController {
      * @param sha   the commit SHA
      * @return HTTP 200 with commit detail
      */
+    @Operation(summary = "Get full metadata for a single commit by SHA")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Commit detail returned"),
+        @ApiResponse(responseCode = "404", description = "Repository or commit not found")
+    })
     @GetMapping("/commits/sha/{sha}")
     public ResponseEntity<Map<String, Object>> getCommit(
             @PathVariable String owner,
@@ -184,6 +199,11 @@ public class CommitController {
      * @param head     the head branch name
      * @return HTTP 200 with comparison result
      */
+    @Operation(summary = "Compare two branches and return commits reachable from head but not base")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Comparison result returned"),
+        @ApiResponse(responseCode = "404", description = "Repository or branch not found")
+    })
     @GetMapping("/compare/{base}...{head}")
     public ResponseEntity<Map<String, Object>> compare(
             @PathVariable String owner,

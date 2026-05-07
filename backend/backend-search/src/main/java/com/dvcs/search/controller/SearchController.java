@@ -4,6 +4,10 @@ import com.dvcs.search.dto.CodeSearchResult;
 import com.dvcs.search.dto.RepositorySearchResult;
 import com.dvcs.search.dto.UserSearchResult;
 import com.dvcs.search.service.SearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Requirement 15: Search — full-text search across repositories, code, and users.
  */
+@Tag(name = "Search", description = "Full-text search across repositories, code, and users")
 @RestController
 @RequestMapping("/api/search")
 public class SearchController {
@@ -53,6 +58,12 @@ public class SearchController {
      * @throws IllegalArgumentException if {@code q} is shorter than 2 characters or
      *                                  {@code type} is not one of the supported values
      */
+    @Operation(summary = "Search across repositories, code, or users")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Search results returned"),
+        @ApiResponse(responseCode = "400", description = "Query too short (< 2 chars) or invalid type parameter"),
+        @ApiResponse(responseCode = "429", description = "Rate limit exceeded")
+    })
     @GetMapping
     public ResponseEntity<?> search(
             @RequestParam String q,

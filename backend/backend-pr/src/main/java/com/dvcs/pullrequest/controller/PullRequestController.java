@@ -19,6 +19,10 @@ import com.dvcs.pullrequest.service.PullRequestService;
 import com.dvcs.pullrequest.service.ReviewService;
 import com.dvcs.repository.domain.Repository;
 import com.dvcs.repository.repository.RepoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,6 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Requirement 10: Pull Request Lifecycle.
  */
+@Tag(name = "Pull Requests", description = "Pull request lifecycle management")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}/pulls")
 public class PullRequestController {
@@ -88,6 +93,15 @@ public class PullRequestController {
      * @param authentication the current authentication
      * @return HTTP 201 with the created pull request
      */
+    @Operation(summary = "Open a new pull request")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Pull request created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Write access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or branch not found"),
+        @ApiResponse(responseCode = "409", description = "Pull request already exists for this branch pair")
+    })
     @PostMapping
     @PreAuthorize("@repoAccessGuard.canWrite(authentication, #owner, #repo)")
     public ResponseEntity<PullRequest> openPr(
@@ -116,6 +130,13 @@ public class PullRequestController {
      * @param size   the page size (default: 20)
      * @return HTTP 200 with a page of pull request DTOs
      */
+    @Operation(summary = "List pull requests filtered by status")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pull request list returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<Page<PrListItemDto>> listPrs(
@@ -143,6 +164,13 @@ public class PullRequestController {
      * @param number the sequential PR number
      * @return HTTP 200 with the PR detail response
      */
+    @Operation(summary = "Get full pull request detail including diff, reviews, and comments")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pull request detail returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository or pull request not found")
+    })
     @GetMapping("/{number}")
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<PrDetailResponse> getPrDetail(
@@ -169,6 +197,14 @@ public class PullRequestController {
      * @param authentication the current authentication
      * @return HTTP 201 with the saved review
      */
+    @Operation(summary = "Submit a review (APPROVE, CHANGES_REQUESTED, or COMMENT) on a pull request")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Review submitted successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository or pull request not found")
+    })
     @PostMapping("/{number}/review")
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<PrReview> submitReview(
@@ -203,6 +239,14 @@ public class PullRequestController {
      * @param authentication the current authentication
      * @return HTTP 200 on successful merge
      */
+    @Operation(summary = "Merge a pull request using the specified strategy (merge-commit, squash, rebase)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pull request merged successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Write access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or pull request not found"),
+        @ApiResponse(responseCode = "422", description = "Pull request is not mergeable or has conflicts")
+    })
     @PostMapping("/{number}/merge")
     @PreAuthorize("@repoAccessGuard.canWrite(authentication, #owner, #repo)")
     public ResponseEntity<Void> merge(
@@ -250,6 +294,14 @@ public class PullRequestController {
      * @param authentication the current authentication
      * @return HTTP 201 with the saved comment
      */
+    @Operation(summary = "Add a comment to a pull request")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Comment added successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository or pull request not found")
+    })
     @PostMapping("/{number}/comments")
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<PrComment> addComment(

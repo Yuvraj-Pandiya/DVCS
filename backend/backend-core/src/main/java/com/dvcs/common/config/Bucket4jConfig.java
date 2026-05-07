@@ -1,5 +1,6 @@
 package com.dvcs.common.config;
 
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
@@ -70,6 +71,9 @@ public class Bucket4jConfig {
     public ProxyManager<String> bucket4jProxyManager(
             StatefulRedisConnection<String, byte[]> connection) {
         return LettuceBasedProxyManager.builderFor(connection)
+                .withExpirationStrategy(
+                        ExpirationAfterWriteStrategy
+                                .basedOnTimeForRefillingBucketUpToMax(java.time.Duration.ofHours(1)))
                 .build();
     }
 }

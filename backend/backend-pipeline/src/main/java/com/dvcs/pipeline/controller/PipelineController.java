@@ -8,6 +8,10 @@ import com.dvcs.pipeline.repository.PipelineRunRepository;
 import com.dvcs.repository.domain.Repository;
 import com.dvcs.repository.repository.RepoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Requirement 13: CI/CD Pipeline Simulation.
  */
+@Tag(name = "Pipelines", description = "CI/CD pipeline run operations")
 @RestController
 public class PipelineController {
 
@@ -59,6 +64,12 @@ public class PipelineController {
      * @param pageable pagination parameters (default page size: 20)
      * @return HTTP 200 with a page of {@link PipelineRunDto}
      */
+    @Operation(summary = "List pipeline runs for a repository, newest first")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pipeline run list returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping("/api/repos/{owner}/{repo}/pipelines")
     public ResponseEntity<Page<PipelineRunDto>> listPipelineRuns(
             @PathVariable String owner,
@@ -84,6 +95,12 @@ public class PipelineController {
      * @return HTTP 200 with a {@link PipelineRunDetailDto}
      * @throws EntityNotFoundException if no pipeline run with the given ID exists
      */
+    @Operation(summary = "Get full detail of a single pipeline run including parsed stage list")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pipeline run detail returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Pipeline run not found")
+    })
     @GetMapping("/api/pipelines/{id}")
     public ResponseEntity<PipelineRunDetailDto> getPipelineRun(@PathVariable Long id) {
         PipelineRun run = pipelineRunRepository.findById(id)

@@ -2,6 +2,10 @@ package com.dvcs.git.transport;
 
 import com.dvcs.auth.domain.User;
 import com.dvcs.common.security.RepoAccessGuard;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +62,7 @@ import java.nio.charset.StandardCharsets;
  * @see ReceivePackService
  * @see RepoAccessGuard
  */
+@Tag(name = "Git Transport", description = "Git smart HTTP transport protocol (clone, fetch, push)")
 @RestController
 @RequestMapping("/api/git/{owner}/{repo}")
 public class GitTransportController {
@@ -117,6 +122,14 @@ public class GitTransportController {
      *                {@code git-receive-pack})
      * @return the ref advertisement response with the appropriate content type
      */
+    @Operation(summary = "Advertise Git refs for clone/fetch (upload-pack) or push (receive-pack)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ref advertisement returned"),
+        @ApiResponse(responseCode = "400", description = "Unknown Git service parameter"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping("/info/refs")
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<byte[]> infoRefs(
@@ -162,6 +175,13 @@ public class GitTransportController {
      * @return the pack-file response stream
      * @throws IOException if reading the request body or streaming the response fails
      */
+    @Operation(summary = "Handle Git upload-pack (clone/fetch) — streams pack file to client")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Pack file streamed successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Read access required"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @PostMapping(
             value = "/git-upload-pack",
             consumes = "application/x-git-upload-pack-request",
@@ -205,6 +225,13 @@ public class GitTransportController {
      * @return HTTP 200 with an empty body on success
      * @throws IOException if reading the request body or processing the pack fails
      */
+    @Operation(summary = "Handle Git receive-pack (push) — accepts pack data and updates refs")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Push accepted and refs updated"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Write access required or branch is protected"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @PostMapping(
             value = "/git-receive-pack",
             consumes = "application/x-git-receive-pack-request",

@@ -1,0 +1,31 @@
+server:
+  port: 0
+
+spring:
+  main:
+    # Two modules (backend-git and backend-core) both define CommitMetaRepository.
+    # Allow the second definition to override the first so the application context
+    # can start during integration tests.
+    allow-bean-definition-overriding: true
+
+storage:
+  backend: local
+  root: ${java.io.tmpdir}/dvcs-test-objects
+
+s3:
+  endpoint: http://localhost:9000
+  bucket: dvcs-objects
+
+jwt:
+  secret: test-secret-key-that-is-long-enough-for-hs256-algorithm
+  expiry-seconds: 900
+  refresh-expiry-days: 30
+
+cors:
+  allowed-origins: http://localhost:3000
+
+springdoc:
+  api-docs:
+    path: /api/docs
+  swagger-ui:
+    path: /api/swagger-ui

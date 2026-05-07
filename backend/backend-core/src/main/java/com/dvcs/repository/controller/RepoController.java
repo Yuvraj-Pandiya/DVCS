@@ -8,6 +8,10 @@ import com.dvcs.repository.dto.RepoStatsDto;
 import com.dvcs.repository.service.RepoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Repository metadata is cached in Redis at {@code repo:{id}:meta} with TTL 60s.
  */
+@Tag(name = "Repositories", description = "Repository lifecycle management")
 @RestController
 @RequestMapping("/api/repos")
 public class RepoController {
@@ -69,6 +74,13 @@ public class RepoController {
      * @param authentication the current authentication
      * @return HTTP 201 with the created repository DTO
      */
+    @Operation(summary = "Create a new repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Repository created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "409", description = "Repository name already exists for this user")
+    })
     @PostMapping
     public ResponseEntity<RepoDto> createRepo(
             @Valid @RequestBody CreateRepoRequest request,
@@ -91,6 +103,13 @@ public class RepoController {
      * @param authentication the current authentication (may be null for public repos)
      * @return HTTP 200 with the repository DTO
      */
+    @Operation(summary = "Get repository metadata")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Repository metadata returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied to private repository"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping("/{owner}/{repo}")
     public ResponseEntity<RepoDto> getRepo(
             @PathVariable String owner,
@@ -121,6 +140,13 @@ public class RepoController {
      * @param authentication the current authentication
      * @return HTTP 204 No Content
      */
+    @Operation(summary = "Delete a repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Repository deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Only the repository owner can delete"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @DeleteMapping("/{owner}/{repo}")
     public ResponseEntity<Void> deleteRepo(
             @PathVariable String owner,
@@ -144,6 +170,14 @@ public class RepoController {
      * @param authentication the current authentication
      * @return HTTP 201 with the forked repository DTO
      */
+    @Operation(summary = "Fork a repository into the authenticated user's namespace")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Repository forked successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Access denied to source repository"),
+        @ApiResponse(responseCode = "404", description = "Source repository not found"),
+        @ApiResponse(responseCode = "409", description = "Fork already exists in user's namespace")
+    })
     @PostMapping("/{owner}/{repo}/fork")
     public ResponseEntity<RepoDto> forkRepo(
             @PathVariable String owner,
@@ -167,6 +201,13 @@ public class RepoController {
      * @param authentication the current authentication
      * @return HTTP 200 with the stats DTO
      */
+    @Operation(summary = "Get repository statistics (object size, commit count, contributor count)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Repository statistics returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping("/{owner}/{repo}/stats")
     public ResponseEntity<RepoStatsDto> getStats(
             @PathVariable String owner,

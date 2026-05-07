@@ -6,6 +6,7 @@ X:\DVCS\backend\backend-api\src\test\java\com\dvcs\git\GitTransportIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\repository\RepoControllerIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\diff\DiffControllerIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\pullrequest\PullRequestControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\openapi\OpenApiIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\pipeline\PipelineControllerIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\webhook\WebhookControllerIT.java
 X:\DVCS\backend\backend-api\src\test\java\com\dvcs\repository\BranchControllerIT.java

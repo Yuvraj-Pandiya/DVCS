@@ -5,6 +5,10 @@ import com.dvcs.auth.dto.AuthResponse;
 import com.dvcs.auth.dto.LoginRequest;
 import com.dvcs.auth.dto.RegisterRequest;
 import com.dvcs.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>MaxAge=2592000 — 30 days in seconds</li>
  * </ul>
  */
+@Tag(name = "Authentication", description = "User registration, login, and token refresh")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -60,6 +65,12 @@ public class AuthController {
      * @param request the registration payload (username, email, password)
      * @return HTTP 201 Created with no body on success
      */
+    @Operation(summary = "Register a new user account")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "User registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "409", description = "Username or email already in use")
+    })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
@@ -80,6 +91,12 @@ public class AuthController {
      * @param response the HTTP servlet response used to set the cookie
      * @return HTTP 200 OK with an {@link AuthResponse} containing the access token
      */
+    @Operation(summary = "Authenticate user and issue JWT access token")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login successful, access token returned"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request,
@@ -107,6 +124,11 @@ public class AuthController {
      * @param response     the HTTP servlet response used to set the rotated cookie
      * @return HTTP 200 OK with a new {@link AuthResponse}, or HTTP 401 if the cookie is missing
      */
+    @Operation(summary = "Rotate refresh token and issue new access token")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+        @ApiResponse(responseCode = "401", description = "Refresh token missing or invalid")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(
             @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) String refreshToken,

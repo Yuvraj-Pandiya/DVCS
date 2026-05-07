@@ -3,6 +3,10 @@ package com.dvcs.notification.controller;
 import com.dvcs.auth.domain.User;
 import com.dvcs.notification.domain.Notification;
 import com.dvcs.notification.repository.NotificationRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Requirement 14.3 and 14.4: Notification list and mark-as-read.
  */
+@Tag(name = "Notifications", description = "User notification management")
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
@@ -42,6 +47,11 @@ public class NotificationController {
      * @param pageable pagination parameters (page, size, sort)
      * @return 200 with a page of unread notifications
      */
+    @Operation(summary = "List paginated unread notifications for the authenticated user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Unread notifications returned"),
+        @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
     @GetMapping
     public ResponseEntity<Page<Notification>> listUnreadNotifications(Pageable pageable) {
         Long userId = getAuthenticatedUserId();
@@ -59,6 +69,13 @@ public class NotificationController {
      * @param id the notification ID
      * @return 200 on success, 403 if not the owner, 404 if not found
      */
+    @Operation(summary = "Mark a notification as read")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Notification marked as read"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Notification does not belong to the authenticated user"),
+        @ApiResponse(responseCode = "404", description = "Notification not found")
+    })
     @PatchMapping("/{id}/read")
     public ResponseEntity<Notification> markAsRead(@PathVariable Long id) {
         Long userId = getAuthenticatedUserId();

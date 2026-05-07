@@ -14,6 +14,10 @@ import com.dvcs.issue.service.IssueService;
 import com.dvcs.issue.service.LabelService;
 import com.dvcs.repository.domain.Repository;
 import com.dvcs.repository.repository.RepoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Requirement 11: Issue Tracker.
  */
+@Tag(name = "Issues", description = "Issue tracker operations")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}/issues")
 public class IssueController {
@@ -81,6 +86,13 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 201 with the created issue
      */
+    @Operation(summary = "Create a new issue in the repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Issue created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<IssueResponse> createIssue(
@@ -108,6 +120,11 @@ public class IssueController {
      * @param pageable pagination parameters (default page size: 20)
      * @return HTTP 200 with a page of issues
      */
+    @Operation(summary = "List issues for a repository, optionally filtered by status")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Issue list returned"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping
     public ResponseEntity<Page<IssueResponse>> listIssues(
             @PathVariable String owner,
@@ -131,6 +148,11 @@ public class IssueController {
      * @param number the sequential issue number
      * @return HTTP 200 with the issue
      */
+    @Operation(summary = "Get a single issue by its sequential number")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Issue returned"),
+        @ApiResponse(responseCode = "404", description = "Repository or issue not found")
+    })
     @GetMapping("/{number}")
     public ResponseEntity<IssueResponse> getIssue(
             @PathVariable String owner,
@@ -155,6 +177,14 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 200 with the updated issue
      */
+    @Operation(summary = "Update the title and/or body of an issue")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Issue updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Only the author or a collaborator can update"),
+        @ApiResponse(responseCode = "404", description = "Repository or issue not found")
+    })
     @PatchMapping("/{number}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<IssueResponse> updateIssue(
@@ -184,6 +214,13 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 200 with the closed issue
      */
+    @Operation(summary = "Close an open issue")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Issue closed successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Only the author or a collaborator can close"),
+        @ApiResponse(responseCode = "404", description = "Repository or issue not found")
+    })
     @PostMapping("/{number}/close")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<IssueResponse> closeIssue(
@@ -213,6 +250,13 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 201 with the saved comment
      */
+    @Operation(summary = "Add a comment to an issue")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Comment added successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Repository or issue not found")
+    })
     @PostMapping("/{number}/comments")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<IssueCommentResponse> addComment(
@@ -243,6 +287,14 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 200 with no body
      */
+    @Operation(summary = "Apply a label to an issue")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Label applied successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Repository, issue, or label not found"),
+        @ApiResponse(responseCode = "422", description = "Label does not belong to this repository")
+    })
     @PostMapping("/{number}/labels")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> applyLabel(
@@ -272,6 +324,12 @@ public class IssueController {
      * @param authentication the current authentication
      * @return HTTP 204 No Content
      */
+    @Operation(summary = "Remove a label from an issue")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Label removed successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "404", description = "Repository, issue, or label not found")
+    })
     @DeleteMapping("/{number}/labels/{labelId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> removeLabel(

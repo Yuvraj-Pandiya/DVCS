@@ -9,6 +9,10 @@ import com.dvcs.repository.dto.CreateBranchRequest;
 import com.dvcs.repository.dto.ToggleProtectionRequest;
 import com.dvcs.repository.repository.RepoRepository;
 import com.dvcs.repository.service.BranchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,7 @@ import java.util.List;
  *   <li>PATCH /api/repos/{owner}/{repo}/branches/{name}/protect — toggle protection</li>
  * </ul>
  */
+@Tag(name = "Branches", description = "Branch management operations")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}/branches")
 public class BranchController {
@@ -62,6 +67,11 @@ public class BranchController {
      * @param repo  the repository name
      * @return HTTP 200 with list of branch DTOs
      */
+    @Operation(summary = "List all branches for a repository")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Branch list returned"),
+        @ApiResponse(responseCode = "404", description = "Repository not found")
+    })
     @GetMapping
     public ResponseEntity<List<BranchDto>> listBranches(
             @PathVariable String owner,
@@ -85,6 +95,15 @@ public class BranchController {
      * @param authentication the current authentication
      * @return HTTP 201 with the created branch DTO
      */
+    @Operation(summary = "Create a new branch from a source SHA")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Branch created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Write access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or source SHA not found"),
+        @ApiResponse(responseCode = "409", description = "Branch name already exists")
+    })
     @PostMapping
     public ResponseEntity<BranchDto> createBranch(
             @PathVariable String owner,
@@ -110,6 +129,13 @@ public class BranchController {
      * @param authentication the current authentication
      * @return HTTP 204 No Content
      */
+    @Operation(summary = "Delete a branch (protected branches cannot be deleted)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Branch deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Branch is protected or write access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or branch not found")
+    })
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteBranch(
             @PathVariable String owner,
@@ -137,6 +163,13 @@ public class BranchController {
      * @param authentication the current authentication
      * @return HTTP 200 with the updated branch DTO
      */
+    @Operation(summary = "Toggle branch protection on or off")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Branch protection updated"),
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Owner access required"),
+        @ApiResponse(responseCode = "404", description = "Repository or branch not found")
+    })
     @PatchMapping("/{name}/protect")
     public ResponseEntity<BranchDto> toggleProtection(
             @PathVariable String owner,

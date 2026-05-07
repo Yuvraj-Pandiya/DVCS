@@ -11,6 +11,10 @@ import com.dvcs.repository.repository.CommitMetaRepository;
 import com.dvcs.repository.repository.RepoRepository;
 import com.dvcs.repository.service.GitObjectReaderService;
 import com.dvcs.repository.service.GitObjectReaderService.TreeEntryInfo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +47,7 @@ import java.util.List;
  * <p>Requirement 7: File Tree and Blob Retrieval.
  * Requirement 19.2: Blob cache TTL 1 hour.
  */
+@Tag(name = "Blobs", description = "Retrieve file blob content from a repository")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}")
 public class BlobController {
@@ -83,6 +88,14 @@ public class BlobController {
      * @param request the HTTP request (used to extract the wildcard path)
      * @return HTTP 200 with {@link BlobDto}
      */
+    @Operation(summary = "Get Base64-encoded file content at a given ref and path")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Blob content returned"),
+        @ApiResponse(responseCode = "400", description = "Path traversal detected"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository, ref, or file path not found")
+    })
     @GetMapping({"/blob/{ref}", "/blob/{ref}/**"})
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<BlobDto> getBlob(
@@ -131,6 +144,14 @@ public class BlobController {
      * @param request the HTTP request (used to extract the wildcard path)
      * @return HTTP 200 with raw file bytes and appropriate Content-Type
      */
+    @Operation(summary = "Stream raw file bytes at a given ref and path")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Raw file bytes streamed with detected Content-Type"),
+        @ApiResponse(responseCode = "400", description = "Path traversal detected"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository, ref, or file path not found")
+    })
     @GetMapping({"/raw/{ref}", "/raw/{ref}/**"})
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<byte[]> getRaw(

@@ -11,6 +11,10 @@ import com.dvcs.repository.repository.CommitMetaRepository;
 import com.dvcs.repository.repository.RepoRepository;
 import com.dvcs.repository.service.GitObjectReaderService;
 import com.dvcs.repository.service.GitObjectReaderService.TreeEntryInfo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,7 @@ import java.util.Map;
  *
  * <p>Requirement 7: File Tree and Blob Retrieval.
  */
+@Tag(name = "File Tree", description = "Browse repository file tree at a given ref and path")
 @RestController
 @RequestMapping("/api/repos/{owner}/{repo}/tree")
 public class TreeController {
@@ -89,6 +94,14 @@ public class TreeController {
      * @param request the HTTP request (used to extract the wildcard path)
      * @return HTTP 200 with a JSON array of {@link TreeEntryDto}
      */
+    @Operation(summary = "List directory entries at a given ref and path")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Directory listing returned"),
+        @ApiResponse(responseCode = "400", description = "Path traversal detected"),
+        @ApiResponse(responseCode = "401", description = "Authentication required for private repository"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Repository, ref, or path not found")
+    })
     @GetMapping({"/{ref}", "/{ref}/**"})
     @PreAuthorize("@repoAccessGuard.canRead(authentication, #owner, #repo)")
     public ResponseEntity<List<TreeEntryDto>> getTree(
