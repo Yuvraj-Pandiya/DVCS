@@ -1,0 +1,3 @@
+com\dvcs\AbstractNotificationIntegrationTest.class
+com\dvcs\notification\NotificationControllerIT.class
+com\dvcs\NotificationTestApplication.class

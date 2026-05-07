@@ -1,0 +1,8 @@
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\transport\PktLineUtilTest.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\storage\ObjectStoreServiceTest.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\object\SHA256UtilTest.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\transport\GitTransportIT.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\pack\PackFileCodecTest.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\transport\TreeBlobControllerIT.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\object\CommitObjectTest.java
+X:\DVCS\backend\backend-git\src\test\java\com\dvcs\git\transport\UploadPackServiceImplTest.java

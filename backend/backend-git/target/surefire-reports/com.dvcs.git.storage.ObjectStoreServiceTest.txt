@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dvcs.git.storage.ObjectStoreServiceTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.491 s -- in com.dvcs.git.storage.ObjectStoreServiceTest

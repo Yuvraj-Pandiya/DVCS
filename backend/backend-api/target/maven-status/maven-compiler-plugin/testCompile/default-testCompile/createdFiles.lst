@@ -1,0 +1,15 @@
+com\dvcs\AbstractIntegrationTest$1.class
+com\dvcs\pullrequest\PullRequestControllerIT.class
+com\dvcs\notification\NotificationControllerIT.class
+com\dvcs\pipeline\PipelineControllerIT.class
+com\dvcs\repository\BranchControllerIT.class
+com\dvcs\auth\AuthControllerIT.class
+com\dvcs\webhook\WebhookControllerIT.class
+com\dvcs\search\SearchControllerIT.class
+com\dvcs\AbstractIntegrationTest.class
+com\dvcs\git\GitTransportIT.class
+com\dvcs\security\RateLimitIT.class
+com\dvcs\issue\IssueControllerIT.class
+com\dvcs\AbstractIntegrationTest$2.class
+com\dvcs\diff\DiffControllerIT.class
+com\dvcs\repository\RepoControllerIT.class

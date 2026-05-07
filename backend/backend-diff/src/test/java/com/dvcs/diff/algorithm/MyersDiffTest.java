@@ -422,6 +422,146 @@ class MyersDiffTest {
     }
 
     // =========================================================================
+    // Task 22.1 — explicitly named test cases
+    // =========================================================================
+
+    /**
+     * Task 22.1 — test 1: diff of two empty String[] returns empty list.
+     */
+    @Test
+    @DisplayName("diffTwoEmptyArrays_returnsEmptyList")
+    void diffTwoEmptyArrays_returnsEmptyList() {
+        List<DiffHunk> hunks = MyersDiff.diff(new String[0], new String[0]);
+        assertThat(hunks).isEmpty();
+    }
+
+    /**
+     * Task 22.1 — test 2: diff of identical 10-line arrays.
+     *
+     * <p>The Myers implementation uses a fast-path that returns an empty list when
+     * {@code Arrays.equals(base, head)} is true, so no hunks (and therefore no
+     * DiffLines) are produced. The assertion verifies that no REMOVE or ADD lines
+     * are present — i.e. every line that would appear is CONTEXT-equivalent.
+     */
+    @Test
+    @DisplayName("diffIdenticalArrays_returnsOnlyContextLines")
+    void diffIdenticalArrays_returnsOnlyContextLines() {
+        String[] arr = new String[10];
+        for (int i = 0; i < 10; i++) {
+            arr[i] = "line " + (i + 1);
+        }
+
+        List<DiffHunk> hunks = MyersDiff.diff(arr, arr);
+
+        // Fast-path: identical arrays → no hunks at all (no changes, no context needed)
+        assertThat(hunks).isEmpty();
+
+        // Confirm: if any hunks were produced, none would contain ADD or REMOVE lines
+        long nonContextCount = hunks.stream()
+                .flatMap(h -> h.getLines().stream())
+                .filter(l -> l.type() != LineType.CONTEXT)
+                .count();
+        assertThat(nonContextCount).isZero();
+    }
+
+    /**
+     * Task 22.1 — test 3: single-line change at line 5 (index 4) of a 10-line array
+     * produces exactly one hunk containing one REMOVE and one ADD line.
+     */
+    @Test
+    @DisplayName("singleLineChange_producesOneHunkWithRemoveAndAdd")
+    void singleLineChange_producesOneHunkWithRemoveAndAdd() {
+        String[] base = new String[10];
+        String[] head = new String[10];
+        for (int i = 0; i < 10; i++) {
+            base[i] = "line " + (i + 1);
+            head[i] = "line " + (i + 1);
+        }
+        // Change line 5 (index 4)
+        head[4] = "CHANGED line 5";
+
+        List<DiffHunk> hunks = MyersDiff.diff(base, head);
+
+        assertThat(hunks).hasSize(1);
+
+        DiffHunk hunk = hunks.get(0);
+        long removes = hunk.getLines().stream().filter(l -> l.type() == LineType.REMOVE).count();
+        long adds    = hunk.getLines().stream().filter(l -> l.type() == LineType.ADD).count();
+
+        assertThat(removes).isEqualTo(1);
+        assertThat(adds).isEqualTo(1);
+
+        // Verify the correct lines are flagged
+        assertThat(hunk.getLines())
+                .anyMatch(l -> l.type() == LineType.REMOVE && l.content().equals("line 5"))
+                .anyMatch(l -> l.type() == LineType.ADD    && l.content().equals("CHANGED line 5"));
+    }
+
+    /**
+     * Task 22.1 — test 4: 50-line file with 3 scattered changes (lines 5, 25, 45)
+     * produces exactly 3 hunks.
+     *
+     * <p>The changes are spaced 20 lines apart, which is well beyond the ±3 context
+     * window, so they cannot be merged into fewer hunks.
+     */
+    @Test
+    @DisplayName("scatteredChanges_producesMultipleHunks")
+    void scatteredChanges_producesMultipleHunks() {
+        String[] base = new String[50];
+        String[] head = new String[50];
+        for (int i = 0; i < 50; i++) {
+            base[i] = "line " + (i + 1);
+            head[i] = "line " + (i + 1);
+        }
+        // Change lines 5, 25, 45 (indices 4, 24, 44)
+        head[4]  = "CHANGED line 5";
+        head[24] = "CHANGED line 25";
+        head[44] = "CHANGED line 45";
+
+        List<DiffHunk> hunks = MyersDiff.diff(base, head);
+
+        assertThat(hunks).hasSize(3);
+
+        // Verify each changed line appears in the hunks
+        assertThat(hunks.stream().flatMap(h -> h.getLines().stream())
+                .anyMatch(l -> l.type() == LineType.ADD && l.content().equals("CHANGED line 5"))).isTrue();
+        assertThat(hunks.stream().flatMap(h -> h.getLines().stream())
+                .anyMatch(l -> l.type() == LineType.ADD && l.content().equals("CHANGED line 25"))).isTrue();
+        assertThat(hunks.stream().flatMap(h -> h.getLines().stream())
+                .anyMatch(l -> l.type() == LineType.ADD && l.content().equals("CHANGED line 45"))).isTrue();
+    }
+
+    /**
+     * Task 22.1 — test 5: round-trip property {@code apply(A, diff(A, B)) == B}
+     * verified for 20 randomly generated String[] pairs (5–15 lines each).
+     */
+    @Test
+    @DisplayName("roundTripProperty_applyDiffReproducesHead")
+    void roundTripProperty_applyDiffReproducesHead() {
+        Random rng = new Random(12345L); // fixed seed for reproducibility
+        String[] words = {"alpha", "beta", "gamma", "delta", "epsilon",
+                          "zeta", "eta", "theta", "iota", "kappa"};
+
+        for (int trial = 0; trial < 20; trial++) {
+            // Generate random arrays A and B with 5–15 lines each
+            int lenA = 5 + rng.nextInt(11); // [5, 15]
+            int lenB = 5 + rng.nextInt(11);
+            String[] a = new String[lenA];
+            String[] b = new String[lenB];
+            for (int i = 0; i < lenA; i++) a[i] = words[rng.nextInt(words.length)];
+            for (int i = 0; i < lenB; i++) b[i] = words[rng.nextInt(words.length)];
+
+            List<DiffHunk> hunks = MyersDiff.diff(a, b);
+            String[] reconstructed = PatchApplier.apply(a, hunks);
+
+            assertThat(Arrays.equals(b, reconstructed))
+                    .as("Round-trip failed on trial %d:%n  a=%s%n  b=%s%n  reconstructed=%s",
+                            trial, Arrays.toString(a), Arrays.toString(b), Arrays.toString(reconstructed))
+                    .isTrue();
+        }
+    }
+
+    // =========================================================================
     // Hunk structure invariants
     // =========================================================================
 

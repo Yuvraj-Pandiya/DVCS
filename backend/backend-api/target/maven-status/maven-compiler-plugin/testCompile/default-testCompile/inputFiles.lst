@@ -1,0 +1,13 @@
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\AbstractIntegrationTest.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\search\SearchControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\notification\NotificationControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\security\RateLimitIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\git\GitTransportIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\repository\RepoControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\diff\DiffControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\pullrequest\PullRequestControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\pipeline\PipelineControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\webhook\WebhookControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\repository\BranchControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\issue\IssueControllerIT.java
+X:\DVCS\backend\backend-api\src\test\java\com\dvcs\auth\AuthControllerIT.java

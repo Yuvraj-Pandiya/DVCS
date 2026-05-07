@@ -123,6 +123,13 @@
             <artifactId>lettuce-core</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Awaitility — for polling async operations in integration tests -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

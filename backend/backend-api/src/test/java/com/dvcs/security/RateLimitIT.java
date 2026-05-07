@@ -1,21 +1,10 @@
 package com.dvcs.security;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.dvcs.AbstractIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,63 +22,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *       returns HTTP 429.</li>
  * </ol>
  *
- * <p>Uses Testcontainers to spin up real PostgreSQL and Redis instances so that
- * the Bucket4j Redis-backed proxy manager is exercised end-to-end.
+ * <p>Extends {@link AbstractIntegrationTest} to reuse the shared Testcontainers setup
+ * (postgres:16-alpine + redis:7-alpine) and Redis flush before each test.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@Testcontainers
-class RateLimitIT {
-
-    // -------------------------------------------------------------------------
-    // Containers
-    // -------------------------------------------------------------------------
-
-    @Container
-    static final PostgreSQLContainer<?> POSTGRES =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
-                    .withDatabaseName("dvcs_test")
-                    .withUsername("dvcs")
-                    .withPassword("dvcs");
-
-    @Container
-    static final GenericContainer<?> REDIS =
-            new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
-                    .withExposedPorts(6379);
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES::getUsername);
-        registry.add("spring.datasource.password", POSTGRES::getPassword);
-        registry.add("spring.data.redis.host", REDIS::getHost);
-        registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
-        // Use local filesystem storage for tests
-        registry.add("storage.backend", () -> "local");
-        registry.add("storage.root", () -> System.getProperty("java.io.tmpdir") + "/dvcs-test-objects");
-        registry.add("jwt.secret", () -> "test-secret-key-that-is-long-enough-for-hs256");
-    }
-
-    // -------------------------------------------------------------------------
-    // Test setup
-    // -------------------------------------------------------------------------
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    /**
-     * Flush all Redis keys before each test to reset bucket state.
-     */
-    @BeforeEach
-    void flushRedis() {
-        // Use the Lettuce client directly to flush the test Redis instance
-        try (io.lettuce.core.RedisClient client = io.lettuce.core.RedisClient.create(
-                "redis://" + REDIS.getHost() + ":" + REDIS.getMappedPort(6379))) {
-            try (var conn = client.connect()) {
-                conn.sync().flushall();
-            }
-        }
-    }
+@DisplayName("RateLimit Integration Tests")
+class RateLimitIT extends AbstractIntegrationTest {
 
     // -------------------------------------------------------------------------
     // Test: auth endpoint rate limit (10 req/min per IP)
@@ -110,11 +47,12 @@ class RateLimitIT {
 
         // Send 10 requests — all should be processed (may return 401 for bad credentials)
         for (int i = 1; i <= 10; i++) {
+            final int requestNum = i;
             mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(loginBody))
                     .andExpect(result -> assertThat(result.getResponse().getStatus())
-                            .as("Request %d should not be rate-limited", i)
+                            .as("Request %d should not be rate-limited", requestNum)
                             .isNotEqualTo(429));
         }
 
@@ -152,9 +90,10 @@ class RateLimitIT {
     void unauthenticatedReads_exceedsLimit_returns429() throws Exception {
         // Send 60 requests — all should pass through (may return 404 for unknown repos)
         for (int i = 1; i <= 60; i++) {
+            final int requestNum = i;
             mockMvc.perform(get("/api/repos/nonexistent/repo"))
                     .andExpect(result -> assertThat(result.getResponse().getStatus())
-                            .as("Request %d should not be rate-limited", i)
+                            .as("Request %d should not be rate-limited", requestNum)
                             .isNotEqualTo(429));
         }
 

@@ -1,0 +1,4 @@
+com\dvcs\IssueTestApplication.class
+com\dvcs\AbstractIssueIntegrationTest.class
+com\dvcs\issue\IssueControllerIT.class
+com\dvcs\issue\IssueControllerIT$TestEventCapture.class
