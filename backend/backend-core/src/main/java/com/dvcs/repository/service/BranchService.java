@@ -4,9 +4,11 @@ import com.dvcs.common.exception.AccessDeniedException;
 import com.dvcs.common.exception.ConflictException;
 import com.dvcs.common.exception.EntityNotFoundException;
 import com.dvcs.repository.domain.Branch;
+import com.dvcs.repository.domain.CommitMeta;
 import com.dvcs.repository.dto.BranchDto;
 import com.dvcs.repository.repository.BranchRepository;
 import com.dvcs.repository.repository.CollaboratorRepository;
+import com.dvcs.repository.repository.CommitMetaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,15 +38,18 @@ public class BranchService {
 
     private final BranchRepository branchRepository;
     private final CollaboratorRepository collaboratorRepository;
+    private final CommitMetaRepository commitMetaRepository;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
     public BranchService(BranchRepository branchRepository,
                          CollaboratorRepository collaboratorRepository,
+                         CommitMetaRepository commitMetaRepository,
                          StringRedisTemplate redisTemplate,
                          ObjectMapper objectMapper) {
         this.branchRepository = branchRepository;
         this.collaboratorRepository = collaboratorRepository;
+        this.commitMetaRepository = commitMetaRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }
@@ -192,13 +198,20 @@ public class BranchService {
     // -------------------------------------------------------------------------
 
     private BranchDto toDto(Branch branch) {
+        // Fetch the last commit date for this branch
+        OffsetDateTime lastCommitDate = commitMetaRepository
+                .findByRepoIdAndSha(branch.getRepoId(), branch.getHeadSha())
+                .map(CommitMeta::getCommittedAt)
+                .orElse(null);
+
         return new BranchDto(
                 branch.getId(),
                 branch.getRepoId(),
                 branch.getName(),
                 branch.getHeadSha(),
                 branch.isProtected(),
-                branch.getCreatedAt()
+                branch.getCreatedAt(),
+                lastCommitDate
         );
     }
 

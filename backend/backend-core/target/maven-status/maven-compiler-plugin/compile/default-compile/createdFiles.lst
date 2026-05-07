@@ -4,6 +4,7 @@ com\dvcs\repository\domain\Collaborator.class
 com\dvcs\auth\dto\PersonalTokenInfo.class
 com\dvcs\repository\domain\CollaboratorId.class
 com\dvcs\auth\controller\AuthController.class
+com\dvcs\common\audit\AuditLogAspect.class
 com\dvcs\common\security\JwtAuthenticationFilter.class
 com\dvcs\common\config\SecurityConfig.class
 com\dvcs\repository\controller\TreeController$CommitInfo.class
@@ -13,6 +14,7 @@ com\dvcs\repository\domain\Branch.class
 com\dvcs\repository\domain\Collaborator$CollaboratorBuilder.class
 com\dvcs\auth\service\SshKeyService.class
 com\dvcs\auth\repository\RefreshTokenRepository.class
+com\dvcs\common\config\AsyncConfig.class
 com\dvcs\auth\domain\PersonalToken$PersonalTokenBuilder.class
 com\dvcs\auth\repository\PersonalTokenRepository.class
 com\dvcs\repository\domain\CommitMeta.class
@@ -24,6 +26,7 @@ com\dvcs\auth\exception\UnauthorizedException.class
 com\dvcs\repository\dto\BranchDto.class
 com\dvcs\auth\repository\SshKeyRepository.class
 com\dvcs\auth\domain\SshKey$SshKeyBuilder.class
+com\dvcs\common\audit\AuditLogRepository.class
 com\dvcs\auth\domain\RefreshToken$RefreshTokenBuilder.class
 com\dvcs\common\exception\EntityNotFoundException.class
 com\dvcs\repository\dto\RepoDto.class
@@ -33,6 +36,7 @@ com\dvcs\repository\service\GitObjectReaderService.class
 com\dvcs\common\security\RepoAccessGuard.class
 com\dvcs\common\exception\PathTraversalException.class
 com\dvcs\repository\domain\GitObject.class
+com\dvcs\common\audit\AuditLog.class
 com\dvcs\common\exception\ConflictException.class
 com\dvcs\repository\domain\CommitMeta$CommitMetaBuilder.class
 com\dvcs\repository\domain\Repository$RepositoryBuilder.class
@@ -42,6 +46,7 @@ com\dvcs\repository\controller\CommitController.class
 com\dvcs\auth\exception\ConflictException.class
 com\dvcs\common\security\PersonalTokenFilter.class
 com\dvcs\repository\dto\RepoStatsDto.class
+com\dvcs\common\config\Bucket4jConfig.class
 com\dvcs\auth\dto\AuthResponse.class
 com\dvcs\repository\dto\ToggleProtectionRequest.class
 com\dvcs\common\error\GlobalExceptionHandler.class
@@ -52,6 +57,9 @@ com\dvcs\auth\domain\User.class
 com\dvcs\auth\dto\RegisterRequest.class
 com\dvcs\auth\service\PersonalTokenService.class
 com\dvcs\auth\domain\RefreshToken.class
+com\dvcs\common\validation\InputSanitizer.class
+com\dvcs\common\audit\AuditLog$AuditLogBuilder.class
+com\dvcs\common\exception\RateLimitExceededException.class
 com\dvcs\repository\domain\GitObject$GitObjectBuilder.class
 com\dvcs\repository\repository\CommitMetaRepository.class
 com\dvcs\common\validation\PathValidator.class
@@ -64,9 +72,11 @@ com\dvcs\auth\dto\LoginRequest.class
 com\dvcs\auth\service\AuthService.class
 com\dvcs\repository\dto\TreeEntryDto.class
 com\dvcs\auth\dto\PersonalTokenResponse.class
+com\dvcs\common\audit\AuditLogService.class
 com\dvcs\auth\domain\PersonalToken.class
 com\dvcs\common\security\RateLimitFilter.class
 com\dvcs\repository\dto\CommitMetaDto.class
+com\dvcs\common\audit\Audited.class
 com\dvcs\repository\domain\Repository.class
 com\dvcs\repository\repository\BranchRepository.class
 com\dvcs\repository\repository\RepoRepository.class

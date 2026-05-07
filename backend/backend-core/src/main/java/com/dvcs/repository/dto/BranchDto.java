@@ -11,5 +11,6 @@ public record BranchDto(
         String name,
         String headSha,
         boolean isProtected,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        OffsetDateTime lastCommitDate
 ) {}

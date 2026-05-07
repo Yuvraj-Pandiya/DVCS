@@ -1,1 +1,0 @@
--- V2__seed_data.sql — No seed data needed for Search integration tests
