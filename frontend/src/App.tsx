@@ -15,6 +15,8 @@ import PullRequestListPage from './pages/PullRequestListPage'
 import PullRequestDetailPage from './pages/PullRequestDetailPage'
 import IssueListPage from './pages/IssueListPage'
 import IssueDetailPage from './pages/IssueDetailPage'
+import RepoSettingsPage from './pages/RepoSettingsPage'
+import PipelineListPage from './pages/PipelineListPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -54,6 +56,17 @@ function App() {
       <Route path="/:owner/:repo/issues" element={<IssueListPage />} />
       {/* Issue detail page */}
       <Route path="/:owner/:repo/issues/:id" element={<IssueDetailPage />} />
+      {/* Repo settings page — OWNER only, must come before /:owner catch-all */}
+      <Route
+        path="/:owner/:repo/settings"
+        element={
+          <ProtectedRoute>
+            <RepoSettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Pipeline list page */}
+      <Route path="/:owner/:repo/pipelines" element={<PipelineListPage />} />
       {/* User profile — must come after all fixed-segment routes to avoid conflicts */}
       <Route path="/:owner" element={<UserProfilePage />} />
     </Routes>

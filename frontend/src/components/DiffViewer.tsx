@@ -416,6 +416,7 @@ function SplitDiffView({
 
 interface DiffViewerProps {
   hunks: DiffHunk[]
+  binary?: boolean
   comments?: PrComment[]
   filePath?: string
   owner?: string
@@ -426,6 +427,7 @@ interface DiffViewerProps {
 
 export default function DiffViewer({
   hunks,
+  binary = false,
   comments = [],
   filePath,
   owner,
@@ -483,6 +485,14 @@ export default function DiffViewer({
 
   const handleCommentCancel = () => {
     setActiveCommentLine(null)
+  }
+
+  if (binary) {
+    return (
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 text-center">
+        <p className="text-sm text-gray-400">Binary file — diff not available.</p>
+      </div>
+    )
   }
 
   if (hunks.length === 0) {
