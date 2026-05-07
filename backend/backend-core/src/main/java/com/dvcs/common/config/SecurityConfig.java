@@ -111,6 +111,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Auth endpoints are fully public
                 .requestMatchers("/api/auth/**").permitAll()
+                // OpenAPI / Swagger UI — publicly accessible for developer convenience
+                .requestMatchers("/api/docs/**", "/api/docs.yaml", "/api/swagger-ui/**",
+                        "/api/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Public read access for repos, git, and search (fine-grained control via @PreAuthorize)
                 .requestMatchers(HttpMethod.GET, "/api/repos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/git/**").permitAll()

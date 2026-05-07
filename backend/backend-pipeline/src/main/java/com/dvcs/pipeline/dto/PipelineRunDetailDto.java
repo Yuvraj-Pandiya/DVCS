@@ -5,6 +5,7 @@ import com.dvcs.pipeline.domain.PipelineStage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +31,34 @@ import java.util.Map;
  * @param finishedAt when the run finished (null if not yet complete)
  * @param createdAt  when the run record was created
  */
+@Schema(description = "Full pipeline run detail including parsed stage results")
 public record PipelineRunDetailDto(
+        @Schema(description = "Unique identifier of the pipeline run", example = "55")
         Long id,
+
+        @Schema(description = "ID of the repository that triggered this pipeline run", example = "1")
         Long repoId,
+
+        @Schema(description = "SHA of the commit that triggered this pipeline run",
+                example = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")
         String commitSha,
+
+        @Schema(description = "Current status of the pipeline run", example = "SUCCESS",
+                allowableValues = {"PENDING", "RUNNING", "SUCCESS", "FAILURE"})
         String status,
+
+        @Schema(description = "List of stage results parsed from the stages_json column")
         List<PipelineStage> stages,
+
+        @Schema(description = "Timestamp when the pipeline run started; null if still PENDING",
+                example = "2026-03-20T14:45:00Z")
         OffsetDateTime startedAt,
+
+        @Schema(description = "Timestamp when the pipeline run finished; null if not yet complete",
+                example = "2026-03-20T14:47:30Z")
         OffsetDateTime finishedAt,
+
+        @Schema(description = "Timestamp when the pipeline run record was created", example = "2026-03-20T14:44:58Z")
         OffsetDateTime createdAt
 ) {
 

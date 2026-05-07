@@ -103,6 +103,12 @@
             <artifactId>owasp-java-html-sanitizer</artifactId>
         </dependency>
 
+        <!-- SpringDoc OpenAPI (Swagger UI + @Schema annotations) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

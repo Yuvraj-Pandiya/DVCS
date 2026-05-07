@@ -12,6 +12,7 @@ X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\dto\CommitMetaDto
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\domain\Branch.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\service\AuthService.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\service\GitObjectReaderService.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\config\OpenApiConfig.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\error\ErrorEnvelope.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\RateLimitFilter.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\repository\BranchRepository.java

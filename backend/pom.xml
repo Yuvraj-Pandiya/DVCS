@@ -45,6 +45,7 @@
         <testcontainers.version>1.19.7</testcontainers.version>
         <wiremock.version>3.4.2</wiremock.version>
         <owasp-sanitizer.version>20220608.1</owasp-sanitizer.version>
+        <springdoc.version>2.5.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -246,6 +247,13 @@
                 <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
                 <artifactId>owasp-java-html-sanitizer</artifactId>
                 <version>${owasp-sanitizer.version}</version>
+            </dependency>
+
+            <!-- SpringDoc OpenAPI (Swagger UI + @Schema annotations) -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

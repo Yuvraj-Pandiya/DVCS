@@ -251,21 +251,21 @@
     - [x] 22.5 Write `AuthServiceTest` (JUnit 5 + Mockito): register with unique username saves user with bcrypt hash and returns DTO, register with duplicate username throws `ConflictException` (409), login with correct password returns access token + refresh token, login with wrong password throws `UnauthorizedException` (401), refresh with valid token returns new access token and rotated refresh token
     - [x] 22.6 Write full integration test suite using Testcontainers (`@SpringBootTest` + `postgres:16-alpine` + `redis:7-alpine` containers): `AuthControllerIT` (register, login, refresh), `RepoControllerIT` (create, get, fork, delete), `GitTransportIT` (info/refs, clone, push), `BranchControllerIT` (create, protect, delete), `PullRequestControllerIT` (open, review, merge), `IssueControllerIT` (create, comment, label, close), `DiffControllerIT` (text diff, binary diff), `WebhookControllerIT` (create, test delivery), `PipelineControllerIT` (trigger, poll status), `NotificationControllerIT` (create, list, mark-read), `SearchControllerIT` (repos, code, users, short-query 400), `RateLimitIT` (exceed auth limit → 429)
 
-- [ ] 23. Load Tests (k6)
+- [x] 23. Load Tests (k6)
   - **Requirement**: Req 17, Req 6
   - **Design section**: System Architecture
   - Sub-tasks:
-    - [~] 23.1 Write `k6/clone.js`: 50 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-upload-pack` then `POST /api/git/{owner}/{repo}/git-upload-pack`; assert p95 response time < 2000ms and error rate < 1%
-    - [~] 23.2 Write `k6/push.js`: 20 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-receive-pack` then `POST /api/git/{owner}/{repo}/git-receive-pack` with a minimal pack payload; assert p95 < 3000ms
-    - [~] 23.3 Write `k6/pr_merge.js`: 10 virtual users × 5 minutes — each iteration creates a PR via `POST /api/repos/{owner}/{repo}/pulls`, submits an APPROVE review, then merges via `POST /pulls/{id}/merge?strategy=squash`; assert p95 < 5000ms
-    - [~] 23.4 Write `k6/thresholds.js`: shared threshold configuration module exporting `{ http_req_duration: ['p(95)<2000'], http_req_failed: ['rate<0.01'] }` imported by all scenario scripts
+    - [x] 23.1 Write `k6/clone.js`: 50 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-upload-pack` then `POST /api/git/{owner}/{repo}/git-upload-pack`; assert p95 response time < 2000ms and error rate < 1%
+    - [x] 23.2 Write `k6/push.js`: 20 virtual users × 5 minutes — each iteration performs `GET /api/git/{owner}/{repo}/info/refs?service=git-receive-pack` then `POST /api/git/{owner}/{repo}/git-receive-pack` with a minimal pack payload; assert p95 < 3000ms
+    - [x] 23.3 Write `k6/pr_merge.js`: 10 virtual users × 5 minutes — each iteration creates a PR via `POST /api/repos/{owner}/{repo}/pulls`, submits an APPROVE review, then merges via `POST /pulls/{id}/merge?strategy=squash`; assert p95 < 5000ms
+    - [x] 23.4 Write `k6/thresholds.js`: shared threshold configuration module exporting `{ http_req_duration: ['p(95)<2000'], http_req_failed: ['rate<0.01'] }` imported by all scenario scripts
 
 - [ ] 24. OpenAPI Documentation & README
   - **Requirement**: Req 1–22 (documentation)
   - **Design section**: Backend Package Structure
   - Sub-tasks:
-    - [~] 24.1 Add `springdoc-openapi-starter-webmvc-ui` dependency to `pom.xml`; implement `OpenApiConfig` (`@Configuration`) bean defining `OpenAPI` with title "DVCS Platform API", version "1.0.0", and `SecurityScheme` of type HTTP Bearer (JWT)
-    - [~] 24.2 Add `@Schema` annotations to all request DTOs (`CreateRepoRequest`, `CreatePrRequest`, `CreateIssueRequest`, `RegisterRequest`, `LoginRequest`, etc.) and response DTOs with field descriptions and example values
+    - [x] 24.1 Add `springdoc-openapi-starter-webmvc-ui` dependency to `pom.xml`; implement `OpenApiConfig` (`@Configuration`) bean defining `OpenAPI` with title "DVCS Platform API", version "1.0.0", and `SecurityScheme` of type HTTP Bearer (JWT)
+    - [ ] 24.2 Add `@Schema` annotations to all request DTOs (`CreateRepoRequest`, `CreatePrRequest`, `CreateIssueRequest`, `RegisterRequest`, `LoginRequest`, etc.) and response DTOs with field descriptions and example values
     - [~] 24.3 Add `@Operation(summary=...)` and `@ApiResponse(responseCode=..., description=...)` annotations to every `@RequestMapping` method in all controllers (AuthController, RepoController, BranchController, CommitController, TreeController, BlobController, DiffController, PullRequestController, IssueController, WebhookController, PipelineController, NotificationController, SearchController, GitTransportController)
     - [~] 24.4 Verify `/api/docs` returns OpenAPI 3 JSON and `/api/swagger-ui` renders the Swagger UI by adding a smoke test in `OpenApiIT` (Testcontainers) that asserts HTTP 200 on both endpoints
     - [~] 24.5 Write `README.md` at repository root covering: prerequisites (Java 21, Node 20, Docker, git), local development setup (`./mvnw spring-boot:run` + `npm run dev`), Docker Compose setup (`docker compose up --build`), first-push walkthrough (`git clone http://localhost/api/git/alice/myrepo`, `echo "hello" > README.md`, `git add . && git commit -m "init" && git push`), environment variable reference table (name, description, default value for each variable in `.env.example`)

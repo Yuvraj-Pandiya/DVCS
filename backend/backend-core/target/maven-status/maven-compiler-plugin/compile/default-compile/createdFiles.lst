@@ -57,6 +57,7 @@ com\dvcs\auth\domain\User.class
 com\dvcs\auth\dto\RegisterRequest.class
 com\dvcs\auth\service\PersonalTokenService.class
 com\dvcs\auth\domain\RefreshToken.class
+com\dvcs\common\config\OpenApiConfig.class
 com\dvcs\common\validation\InputSanitizer.class
 com\dvcs\common\audit\AuditLog$AuditLogBuilder.class
 com\dvcs\common\exception\RateLimitExceededException.class
