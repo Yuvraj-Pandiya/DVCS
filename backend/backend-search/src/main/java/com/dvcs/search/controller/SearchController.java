@@ -1,6 +1,5 @@
 package com.dvcs.search.controller;
 
-import com.dvcs.common.exception.InvalidRequestException;
 import com.dvcs.search.dto.CodeSearchResult;
 import com.dvcs.search.dto.RepositorySearchResult;
 import com.dvcs.search.dto.UserSearchResult;
@@ -51,8 +50,8 @@ public class SearchController {
      * @param type     the search type: {@code repositories}, {@code code}, or {@code users}
      * @param pageable pagination parameters (default page size: 20)
      * @return HTTP 200 with paginated search results, or HTTP 400 if query is too short
-     * @throws InvalidRequestException if {@code q} is shorter than 2 characters or
-     *                                 {@code type} is not one of the supported values
+     * @throws IllegalArgumentException if {@code q} is shorter than 2 characters or
+     *                                  {@code type} is not one of the supported values
      */
     @GetMapping
     public ResponseEntity<?> search(
@@ -60,9 +59,9 @@ public class SearchController {
             @RequestParam String type,
             @PageableDefault(size = 20) Pageable pageable) {
 
-        // Validate query length
+        // Validate query length (throws IllegalArgumentException → HTTP 400)
         if (q == null || q.length() < MIN_QUERY_LENGTH) {
-            throw new InvalidRequestException(
+            throw new IllegalArgumentException(
                     "Search query must be at least " + MIN_QUERY_LENGTH + " characters long.");
         }
 
@@ -82,7 +81,7 @@ public class SearchController {
                         searchService.searchUsers(q, pageable);
                 yield ResponseEntity.ok(results);
             }
-            default -> throw new InvalidRequestException(
+            default -> throw new IllegalArgumentException(
                     "Invalid search type '" + type + "'. Must be one of: repositories, code, users.");
         };
     }

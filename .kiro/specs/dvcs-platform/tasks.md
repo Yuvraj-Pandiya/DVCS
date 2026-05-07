@@ -169,9 +169,9 @@
   - **Requirement**: Req 15
   - **Design section**: Backend Package Structure 
   - Sub-tasks:
-    - [-] 15.1 Implement `SearchService`: `searchRepositories(query, pageable)` — `SELECT * FROM repositories WHERE (name ILIKE '%{q}%' OR description ILIKE '%{q}%') AND is_private=false ORDER BY name`; `searchCode(query, pageable)` — scan `git_objects` of type BLOB in public repos, read content via `ObjectStoreService`, return `{repoOwner, repoName, filePath, snippet}` for matches; `searchUsers(query, pageable)` — `SELECT * FROM users WHERE username ILIKE '%{q}%' OR bio ILIKE '%{q}%'`
-    - [ ] 15.2 Implement `SearchController` (`GET /api/search?q=&type=repositories|code|users`): validate `q` length ≥ 2 (return 400 otherwise), dispatch to `SearchService` based on `type`, return paginated results
-    - [ ] 15.3 Write `SearchControllerIT` (Testcontainers): create public repo with known name, search repositories → found, search with q < 2 chars → 400, search users by username → found, search code for known file content → returns snippet
+    - [x] 15.1 Implement `SearchService`: `searchRepositories(query, pageable)` — `SELECT * FROM repositories WHERE (name ILIKE '%{q}%' OR description ILIKE '%{q}%') AND is_private=false ORDER BY name`; `searchCode(query, pageable)` — scan `git_objects` of type BLOB in public repos, read content via `ObjectStoreService`, return `{repoOwner, repoName, filePath, snippet}` for matches; `searchUsers(query, pageable)` — `SELECT * FROM users WHERE username ILIKE '%{q}%' OR bio ILIKE '%{q}%'`
+    - [x] 15.2 Implement `SearchController` (`GET /api/search?q=&type=repositories|code|users`): validate `q` length ≥ 2 (return 400 otherwise), dispatch to `SearchService` based on `type`, return paginated results
+    - [x] 15.3 Write `SearchControllerIT` (Testcontainers): create public repo with known name, search repositories → found, search with q < 2 chars → 400, search users by username → found, search code for known file content → returns snippet
 
 - [ ] 16. Rate Limiting & Security Hardening
   - **Requirement**: Req 17, Req 18

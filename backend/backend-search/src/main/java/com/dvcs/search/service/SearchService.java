@@ -2,11 +2,11 @@ package com.dvcs.search.service;
 
 import com.dvcs.auth.domain.User;
 import com.dvcs.auth.repository.UserRepository;
-import com.dvcs.git.storage.ObjectStoreService;
 import com.dvcs.repository.domain.GitObject;
 import com.dvcs.repository.domain.Repository;
 import com.dvcs.repository.repository.GitObjectRepository;
 import com.dvcs.repository.repository.RepoRepository;
+import com.dvcs.repository.service.GitObjectReaderService;
 import com.dvcs.search.dto.CodeSearchResult;
 import com.dvcs.search.dto.RepositorySearchResult;
 import com.dvcs.search.dto.UserSearchResult;
@@ -41,16 +41,16 @@ public class SearchService {
     private final RepoRepository repoRepository;
     private final UserRepository userRepository;
     private final GitObjectRepository gitObjectRepository;
-    private final ObjectStoreService objectStoreService;
+    private final GitObjectReaderService gitObjectReaderService;
 
     public SearchService(RepoRepository repoRepository,
                          UserRepository userRepository,
                          GitObjectRepository gitObjectRepository,
-                         ObjectStoreService objectStoreService) {
+                         GitObjectReaderService gitObjectReaderService) {
         this.repoRepository = repoRepository;
         this.userRepository = userRepository;
         this.gitObjectRepository = gitObjectRepository;
-        this.objectStoreService = objectStoreService;
+        this.gitObjectReaderService = gitObjectReaderService;
     }
 
     /**
@@ -140,7 +140,7 @@ public class SearchService {
                     continue;
                 }
 
-                byte[] content = objectStoreService.readObject(
+                byte[] content = gitObjectReaderService.readBlobContent(
                         String.valueOf(blob.getRepoId()), blob.getSha());
 
                 // Skip binary files (simple heuristic: check for null bytes)

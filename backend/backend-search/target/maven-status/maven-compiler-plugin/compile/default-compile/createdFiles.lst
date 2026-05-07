@@ -1,1 +1,9 @@
+com\dvcs\search\dto\UserSearchResult.class
 com\dvcs\search\package-info.class
+com\dvcs\search\dto\RepositorySearchResult$RepositorySearchResultBuilder.class
+com\dvcs\search\dto\CodeSearchResult.class
+com\dvcs\search\dto\UserSearchResult$UserSearchResultBuilder.class
+com\dvcs\search\service\SearchService.class
+com\dvcs\search\dto\RepositorySearchResult.class
+com\dvcs\search\dto\CodeSearchResult$CodeSearchResultBuilder.class
+com\dvcs\search\controller\SearchController.class
