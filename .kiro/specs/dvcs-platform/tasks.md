@@ -231,14 +231,14 @@
     - [x] 20.6 Implement `RepoSettingsPage` (`src/pages/RepoSettingsPage.tsx`) at route `/:owner/:repo/settings` (OWNER only): General tab (rename repo, change visibility, update description), Collaborators tab (list + add by username + change role + remove), Webhooks tab (list + create + edit + delete + test), Danger Zone section (delete repository with confirmation dialog requiring repo name re-entry)
     - [x] 20.7 Implement `PipelineListPage` (`src/pages/PipelineListPage.tsx`) at route `/:owner/:repo/pipelines`: paginated list of pipeline runs; each row shows commit SHA (link), status badge (PENDING/RUNNING/SUCCESS/FAILURE with color), triggered-at timestamp, duration; click row expands stage detail with per-stage status badges and timing
 
-- [-] 21. Frontend Tests
+- [x] 21. Frontend Tests
   - **Requirement**: Req 21, Req 22
   - **Design section**: Frontend Architecture / Key Component Designs
   - Sub-tasks:
-    - [-] 21.1 Write `DiffViewer.test.tsx` (Vitest + React Testing Library): renders unified diff with correct ADD/REMOVE/CONTEXT line classes, renders split diff with two columns, clicking mode toggle switches between unified and split, renders binary diff message when `binary: true` prop passed
-    - [~] 21.2 Write `CommitGraph.test.tsx` (Vitest + React Testing Library): renders correct number of `<circle>` elements for given commits array, renders parent edge `<path>` elements, merge commit node has two parent edge paths, single-branch linear history renders all nodes in one lane
-    - [~] 21.3 Write `BranchSelector.test.tsx` (Vitest + React Testing Library + userEvent): renders all branches initially, typing in search input reduces displayed list via fuzzy filter, pressing ↓ moves keyboard focus to next item, pressing Enter calls `onChange` with selected branch name, pressing Escape closes the dropdown
-    - [~] 21.4 Write `AuthContext.test.tsx` (Vitest + React Testing Library): `login()` stores access token in context state, `logout()` clears token and user, `refresh()` on 401 response calls `/api/auth/refresh` and updates token, failed refresh redirects to `/login`
+    - [x] 21.1 Write `DiffViewer.test.tsx` (Vitest + React Testing Library): renders unified diff with correct ADD/REMOVE/CONTEXT line classes, renders split diff with two columns, clicking mode toggle switches between unified and split, renders binary diff message when `binary: true` prop passed
+    - [x] 21.2 Write `CommitGraph.test.tsx` (Vitest + React Testing Library): renders correct number of `<circle>` elements for given commits array, renders parent edge `<path>` elements, merge commit node has two parent edge paths, single-branch linear history renders all nodes in one lane
+    - [x] 21.3 Write `BranchSelector.test.tsx` (Vitest + React Testing Library + userEvent): renders all branches initially, typing in search input reduces displayed list via fuzzy filter, pressing ↓ moves keyboard focus to next item, pressing Enter calls `onChange` with selected branch name, pressing Escape closes the dropdown
+    - [x] 21.4 Write `AuthContext.test.tsx` (Vitest + React Testing Library): `login()` stores access token in context state, `logout()` clears token and user, `refresh()` on 401 response calls `/api/auth/refresh` and updates token, failed refresh redirects to `/login`
 
 - [ ] 22. Backend Unit & Integration Tests
   - **Requirement**: Req 4, Req 6, Req 9, Req 1
