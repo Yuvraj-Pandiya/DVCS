@@ -135,15 +135,15 @@
     - [x] 11.6 Implement `IssueController` (`@RequestMapping("/api/repos/{owner}/{repo}/issues")`): `POST /` → createIssue, `GET /` → listIssues, `GET /{number}` → getIssue, `PATCH /{number}` → updateIssue, `POST /{number}/close` → closeIssue, `POST /{number}/comments` → addComment, `POST /{number}/labels` → applyLabel, `DELETE /{number}/labels/{labelId}` → removeLabel
     - [x] 11.7 Write `IssueControllerIT` (Testcontainers): create issue, add comment (verify notification created), apply label, apply non-existent label → 422, close issue (verify webhook triggered), unauthorized update → 403
 
-- [-] 12. Webhook Module
+- [x] 12. Webhook Module
   - **Requirement**: Req 12
   - **Design section**: Backend Package Structure
   - Sub-tasks:
-    - [ ] 12.1 Create `Webhook` JPA entity mapping `webhooks` table; create `WebhookRepository` with `findByRepoIdAndActiveTrue(Long)` and `findByRepoIdAndEventsContaining(Long, String)`
-    - [ ] 12.2 Implement `WebhookService`: `createWebhook(repoId, userId, CreateWebhookRequest)` (OWNER check, return 201), `listWebhooks(repoId, userId)`, `updateWebhook(webhookId, userId, UpdateWebhookRequest)`, `deleteWebhook(webhookId, userId)` (OWNER check, return 204)
-    - [ ] 12.3 Implement `WebhookDeliveryService`: `deliver(Webhook webhook, String eventType, Object payload)` — serialize payload to JSON, compute `X-Hub-Signature-256: sha256={hmac}` header using `javax.crypto.Mac` with webhook secret, POST to webhook URL via `java.net.http.HttpClient` with 10s timeout; on non-2xx or timeout, retry with exponential backoff (1s, 2s, 4s) up to 3 attempts; never log `webhook.secret`; run in `@Async` thread pool
-    - [ ] 12.4 Implement `WebhookController` (`@RequestMapping("/api/repos/{owner}/{repo}/webhooks")`): `POST /` → createWebhook, `GET /` → listWebhooks, `PATCH /{id}` → updateWebhook, `DELETE /{id}` → deleteWebhook, `POST /{id}/test` → deliver synthetic ping payload and return delivery result
-    - [ ] 12.5 Write `WebhookControllerIT` (Testcontainers + WireMock): create webhook, trigger push event, verify WireMock received POST with correct `X-Hub-Signature-256` header, simulate 500 response and verify 3 retry attempts, test endpoint delivers ping
+    - [x] 12.1 Create `Webhook` JPA entity mapping `webhooks` table; create `WebhookRepository` with `findByRepoIdAndActiveTrue(Long)` and `findByRepoIdAndEventsContaining(Long, String)`
+    - [x] 12.2 Implement `WebhookService`: `createWebhook(repoId, userId, CreateWebhookRequest)` (OWNER check, return 201), `listWebhooks(repoId, userId)`, `updateWebhook(webhookId, userId, UpdateWebhookRequest)`, `deleteWebhook(webhookId, userId)` (OWNER check, return 204)
+    - [x] 12.3 Implement `WebhookDeliveryService`: `deliver(Webhook webhook, String eventType, Object payload)` — serialize payload to JSON, compute `X-Hub-Signature-256: sha256={hmac}` header using `javax.crypto.Mac` with webhook secret, POST to webhook URL via `java.net.http.HttpClient` with 10s timeout; on non-2xx or timeout, retry with exponential backoff (1s, 2s, 4s) up to 3 attempts; never log `webhook.secret`; run in `@Async` thread pool
+    - [x] 12.4 Implement `WebhookController` (`@RequestMapping("/api/repos/{owner}/{repo}/webhooks")`): `POST /` → createWebhook, `GET /` → listWebhooks, `PATCH /{id}` → updateWebhook, `DELETE /{id}` → deleteWebhook, `POST /{id}/test` → deliver synthetic ping payload and return delivery result
+    - [x] 12.5 Write `WebhookControllerIT` (Testcontainers + WireMock): create webhook, trigger push event, verify WireMock received POST with correct `X-Hub-Signature-256` header, simulate 500 response and verify 3 retry attempts, test endpoint delivers ping
 
 - [ ] 13. CI/CD Pipeline Engine
   - **Requirement**: Req 13, Req 14
