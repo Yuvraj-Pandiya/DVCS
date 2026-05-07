@@ -2,6 +2,7 @@ package com.dvcs.pullrequest.service;
 
 import com.dvcs.common.exception.EntityNotFoundException;
 import com.dvcs.common.exception.InvalidRequestException;
+import com.dvcs.common.validation.InputSanitizer;
 import com.dvcs.diff.model.DiffHunk;
 import com.dvcs.diff.service.DiffService;
 import com.dvcs.pullrequest.domain.PrComment;
@@ -45,17 +46,20 @@ public class PullRequestService {
     private final PrCommentRepository prCommentRepository;
     private final BranchRepository branchRepository;
     private final DiffService diffService;
+    private final InputSanitizer inputSanitizer;
 
     public PullRequestService(PullRequestRepository pullRequestRepository,
                                PrReviewRepository prReviewRepository,
                                PrCommentRepository prCommentRepository,
                                BranchRepository branchRepository,
-                               DiffService diffService) {
+                               DiffService diffService,
+                               InputSanitizer inputSanitizer) {
         this.pullRequestRepository = pullRequestRepository;
         this.prReviewRepository = prReviewRepository;
         this.prCommentRepository = prCommentRepository;
         this.branchRepository = branchRepository;
         this.diffService = diffService;
+        this.inputSanitizer = inputSanitizer;
     }
 
     // =========================================================================
@@ -86,7 +90,7 @@ public class PullRequestService {
                 .repoId(repoId)
                 .number(nextNumber)
                 .title(req.title())
-                .body(req.body())
+                .body(inputSanitizer.sanitize(req.body()))
                 .headBranch(req.headBranch())
                 .baseBranch(req.baseBranch())
                 .authorId(userId)

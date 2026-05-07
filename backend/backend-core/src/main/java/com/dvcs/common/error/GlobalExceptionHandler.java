@@ -2,6 +2,7 @@ package com.dvcs.common.error;
 
 import com.dvcs.auth.exception.ConflictException;
 import com.dvcs.auth.exception.UnauthorizedException;
+import com.dvcs.common.exception.RateLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,20 @@ import java.util.Map;
  *
  * <p>All 4xx and 5xx responses use the format:
  * {@code { error, message, details, timestamp }}
+ *
+ * <p>Mapping table:
+ * <ul>
+ *   <li>{@link com.dvcs.common.exception.EntityNotFoundException} → 404</li>
+ *   <li>{@link com.dvcs.common.exception.AccessDeniedException} → 403</li>
+ *   <li>{@link ConflictException} / {@link com.dvcs.common.exception.ConflictException} → 409</li>
+ *   <li>{@link com.dvcs.common.exception.PathTraversalException} → 400</li>
+ *   <li>{@link MethodArgumentNotValidException} → 400 with field-level details</li>
+ *   <li>{@link RateLimitExceededException} → 429 with {@code Retry-After} header</li>
+ *   <li>{@link com.dvcs.common.exception.MergeConflictException} → 422</li>
+ *   <li>{@link com.dvcs.common.exception.InvalidRequestException} → 422</li>
+ *   <li>{@link UnauthorizedException} → 401</li>
+ *   <li>{@link Exception} (catch-all) → 500</li>
+ * </ul>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -132,6 +147,29 @@ public class GlobalExceptionHandler {
             com.dvcs.common.exception.MergeConflictException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ErrorEnvelope.of("MERGE_CONFLICT", ex.getMessage()));
+    }
+
+    // -------------------------------------------------------------------------
+    // 429 Too Many Requests — rate limit exceeded
+    // -------------------------------------------------------------------------
+
+    /**
+     * Handles {@link RateLimitExceededException} thrown by services or filters.
+     *
+     * <p>Sets the {@code Retry-After} header so clients know when to retry.
+     * Note: the {@link com.dvcs.common.security.RateLimitFilter} writes 429 directly
+     * to the response before the controller layer is reached; this handler covers
+     * any programmatic throws from service code.
+     *
+     * @param ex the rate-limit exception
+     * @return HTTP 429 with error envelope and {@code Retry-After} header
+     */
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorEnvelope> handleRateLimitExceeded(RateLimitExceededException ex) {
+        Map<String, Object> details = Map.of("retryAfterSeconds", ex.getRetryAfterSeconds());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                .body(ErrorEnvelope.of("RATE_LIMIT_EXCEEDED", ex.getMessage(), details));
     }
 
     // -------------------------------------------------------------------------

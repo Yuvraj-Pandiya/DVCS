@@ -1,5 +1,6 @@
 package com.dvcs.git.transport;
 
+import com.dvcs.common.audit.Audited;
 import com.dvcs.git.commit.CommitMeta;
 import com.dvcs.git.commit.CommitMetaRepository;
 import com.dvcs.git.event.PushEvent;
@@ -192,6 +193,7 @@ public class ReceivePackServiceImpl implements ReceivePackService {
      */
     @Override
     @Transactional
+    @Audited(action = "push", resourceType = "repository")
     public void receivePack(Long repoId, Long userId, InputStream input) throws IOException {
         // Step 1: Parse ref updates from pkt-line stream
         List<RefUpdate> refUpdates = parseRefUpdates(input);

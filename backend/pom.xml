@@ -157,6 +157,11 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>3.2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>3.2.5</version>
                 <scope>test</scope>
@@ -219,6 +224,13 @@
                 <groupId>com.bucket4j</groupId>
                 <artifactId>bucket4j-redis</artifactId>
                 <version>${bucket4j.version}</version>
+            </dependency>
+
+            <!-- Lettuce (required by Bucket4j Redis proxy manager) -->
+            <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>6.3.2.RELEASE</version>
             </dependency>
 
             <!-- WireMock -->

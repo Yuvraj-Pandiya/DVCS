@@ -2,6 +2,7 @@ package com.dvcs.repository.service;
 
 import com.dvcs.auth.domain.User;
 import com.dvcs.auth.repository.UserRepository;
+import com.dvcs.common.audit.Audited;
 import com.dvcs.common.exception.AccessDeniedException;
 import com.dvcs.common.exception.ConflictException;
 import com.dvcs.common.exception.EntityNotFoundException;
@@ -182,6 +183,7 @@ public class RepoService {
      * @throws EntityNotFoundException if the repository does not exist
      * @throws AccessDeniedException   if the requester is not the OWNER
      */
+    @Audited(action = "delete_repo", resourceType = "repository")
     public void deleteRepo(Long requesterId, String owner, String name) {
         User ownerUser = userRepository.findByUsername(owner)
                 .orElseThrow(() -> new EntityNotFoundException(

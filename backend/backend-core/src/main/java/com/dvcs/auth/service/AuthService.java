@@ -9,6 +9,7 @@ import com.dvcs.auth.exception.ConflictException;
 import com.dvcs.auth.exception.UnauthorizedException;
 import com.dvcs.auth.repository.RefreshTokenRepository;
 import com.dvcs.auth.repository.UserRepository;
+import com.dvcs.common.audit.Audited;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,6 +99,7 @@ public class AuthService {
      * @return an {@link AuthResponse} containing the access token and the raw refresh token
      * @throws UnauthorizedException if the credentials are invalid
      */
+    @Audited(action = "login", resourceType = "user")
     public AuthResponse login(LoginRequest req) {
         User user = userRepository.findByUsername(req.username())
                 .orElseThrow(() -> new UnauthorizedException("Invalid credentials."));

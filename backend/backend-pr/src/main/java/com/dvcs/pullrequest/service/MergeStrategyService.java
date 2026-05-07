@@ -1,5 +1,6 @@
 package com.dvcs.pullrequest.service;
 
+import com.dvcs.common.audit.Audited;
 import com.dvcs.common.exception.EntityNotFoundException;
 import com.dvcs.common.exception.MergeConflictException;
 import com.dvcs.diff.algorithm.MergeResult;
@@ -114,6 +115,7 @@ public class MergeStrategyService {
      * @throws EntityNotFoundException if a branch is not found
      * @throws MergeConflictException  if the merge has unresolvable conflicts
      */
+    @Audited(action = "merge_pr", resourceType = "pull_request")
     public void mergeCommit(Long repoId, PullRequest pr, Long requesterId) {
         log.info("Performing merge-commit for PR #{} in repo {}", pr.getNumber(), repoId);
 
@@ -149,6 +151,7 @@ public class MergeStrategyService {
      * @throws EntityNotFoundException if a branch is not found
      * @throws MergeConflictException  if the merge has unresolvable conflicts
      */
+    @Audited(action = "merge_pr", resourceType = "pull_request")
     public void squashMerge(Long repoId, PullRequest pr, Long requesterId) {
         log.info("Performing squash-merge for PR #{} in repo {}", pr.getNumber(), repoId);
 
@@ -192,6 +195,7 @@ public class MergeStrategyService {
      * @throws EntityNotFoundException if a branch is not found
      * @throws MergeConflictException  if the merge has unresolvable conflicts
      */
+    @Audited(action = "merge_pr", resourceType = "pull_request")
     public void rebaseMerge(Long repoId, PullRequest pr, Long requesterId) {
         log.info("Performing rebase-merge for PR #{} in repo {}", pr.getNumber(), repoId);
 

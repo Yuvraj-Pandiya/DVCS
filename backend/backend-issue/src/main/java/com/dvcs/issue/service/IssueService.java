@@ -2,6 +2,7 @@ package com.dvcs.issue.service;
 
 import com.dvcs.common.exception.AccessDeniedException;
 import com.dvcs.common.exception.EntityNotFoundException;
+import com.dvcs.common.validation.InputSanitizer;
 import com.dvcs.issue.domain.Issue;
 import com.dvcs.issue.domain.IssueComment;
 import com.dvcs.issue.dto.CreateIssueRequest;
@@ -50,15 +51,18 @@ public class IssueService {
     private final IssueCommentRepository issueCommentRepository;
     private final CollaboratorRepository collaboratorRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final InputSanitizer inputSanitizer;
 
     public IssueService(IssueRepository issueRepository,
                         IssueCommentRepository issueCommentRepository,
                         CollaboratorRepository collaboratorRepository,
-                        ApplicationEventPublisher eventPublisher) {
+                        ApplicationEventPublisher eventPublisher,
+                        InputSanitizer inputSanitizer) {
         this.issueRepository = issueRepository;
         this.issueCommentRepository = issueCommentRepository;
         this.collaboratorRepository = collaboratorRepository;
         this.eventPublisher = eventPublisher;
+        this.inputSanitizer = inputSanitizer;
     }
 
     // =========================================================================
@@ -83,7 +87,7 @@ public class IssueService {
                 .repoId(repoId)
                 .number(nextNumber)
                 .title(req.getTitle())
-                .body(req.getBody())
+                .body(inputSanitizer.sanitize(req.getBody()))
                 .authorId(userId)
                 .status("open")
                 .build();
@@ -148,7 +152,7 @@ public class IssueService {
             issue.setTitle(req.getTitle());
         }
         if (req.getBody() != null) {
-            issue.setBody(req.getBody());
+            issue.setBody(inputSanitizer.sanitize(req.getBody()));
         }
 
         Issue saved = issueRepository.save(issue);
@@ -206,7 +210,7 @@ public class IssueService {
 
         IssueComment comment = IssueComment.builder()
                 .issueId(issueId)
-                .body(body)
+                .body(inputSanitizer.sanitize(body))
                 .authorId(userId)
                 .build();
 

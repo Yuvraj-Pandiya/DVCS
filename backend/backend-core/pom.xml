@@ -85,6 +85,18 @@
             <artifactId>bucket4j-redis</artifactId>
         </dependency>
 
+        <!-- Lettuce (required by Bucket4j LettuceBasedProxyManager) -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </dependency>
+
+        <!-- Spring AOP (for @Audited aspect) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- OWASP HTML Sanitizer -->
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
