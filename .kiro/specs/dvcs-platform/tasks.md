@@ -123,19 +123,19 @@
     - [x] 10.7 Implement `PullRequestController` (`@RequestMapping("/api/repos/{owner}/{repo}/pulls")`): `POST /` → openPr, `GET /` → listPrs, `GET /{id}` → getPrDetail, `POST /{id}/review` → submitReview, `POST /{id}/merge?strategy=` → merge (check `ReviewService.isMergeable`, return 422 if not), `POST /{id}/comments` → addComment
     - [x] 10.8 Write `PullRequestControllerIT` (Testcontainers): open PR, submit APPROVE review, merge with merge-commit strategy, verify base branch updated; open PR, submit CHANGES_REQUESTED, attempt merge → 422; open PR with conflicting changes, attempt merge → 422 with conflict details; test squash and rebase strategies
 
-- [-] 11. Issues Module
+- [x] 11. Issues Module
   - **Requirement**: Req 11, Req 12, Req 14
   - **Design section**: Backend Package Structure
   - Sub-tasks:
-    - [ ] 11.1 Create `Issue` JPA entity mapping `issues` table; create `IssueRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`; use `SELECT MAX(number)+1` subquery for sequential number assignment
-    - [ ] 11.2 Create `IssueComment` JPA entity mapping `issue_comments` table; create `IssueCommentRepository` with `findByIssueIdOrderByCreatedAtAsc(Long)`
-    - [ ] 11.3 Create `Label` JPA entity mapping `labels` table; create `LabelRepository` with `findByRepoIdAndName(Long, String)`
-    - [ ] 11.4 Implement `IssueService`: `createIssue(userId, repoId, CreateIssueRequest)` (assign sequential number, status=open, return 201), `updateIssue(userId, issueId, UpdateIssueRequest)` (author/WRITE/OWNER check), `closeIssue(userId, issueId)` (authorized check, trigger issues webhook), `listIssues(repoId, status, pageable)`, `addComment(userId, issueId, body)` (save comment, notify author + previous commenters)
-    - [ ] 11.5 Implement `LabelService`: `createLabel(repoId, name, color, requesterId)` (WRITE/OWNER check), `applyLabel(issueId, labelId, repoId)` (verify label belongs to same repo, throw 422 if not), `removeLabel(issueId, labelId)`
-    - [ ] 11.6 Implement `IssueController` (`@RequestMapping("/api/repos/{owner}/{repo}/issues")`): `POST /` → createIssue, `GET /` → listIssues, `GET /{number}` → getIssue, `PATCH /{number}` → updateIssue, `POST /{number}/close` → closeIssue, `POST /{number}/comments` → addComment, `POST /{number}/labels` → applyLabel, `DELETE /{number}/labels/{labelId}` → removeLabel
-    - [ ] 11.7 Write `IssueControllerIT` (Testcontainers): create issue, add comment (verify notification created), apply label, apply non-existent label → 422, close issue (verify webhook triggered), unauthorized update → 403
+    - [x] 11.1 Create `Issue` JPA entity mapping `issues` table; create `IssueRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`; use `SELECT MAX(number)+1` subquery for sequential number assignment
+    - [x] 11.2 Create `IssueComment` JPA entity mapping `issue_comments` table; create `IssueCommentRepository` with `findByIssueIdOrderByCreatedAtAsc(Long)`
+    - [x] 11.3 Create `Label` JPA entity mapping `labels` table; create `LabelRepository` with `findByRepoIdAndName(Long, String)`
+    - [x] 11.4 Implement `IssueService`: `createIssue(userId, repoId, CreateIssueRequest)` (assign sequential number, status=open, return 201), `updateIssue(userId, issueId, UpdateIssueRequest)` (author/WRITE/OWNER check), `closeIssue(userId, issueId)` (authorized check, trigger issues webhook), `listIssues(repoId, status, pageable)`, `addComment(userId, issueId, body)` (save comment, notify author + previous commenters)
+    - [x] 11.5 Implement `LabelService`: `createLabel(repoId, name, color, requesterId)` (WRITE/OWNER check), `applyLabel(issueId, labelId, repoId)` (verify label belongs to same repo, throw 422 if not), `removeLabel(issueId, labelId)`
+    - [x] 11.6 Implement `IssueController` (`@RequestMapping("/api/repos/{owner}/{repo}/issues")`): `POST /` → createIssue, `GET /` → listIssues, `GET /{number}` → getIssue, `PATCH /{number}` → updateIssue, `POST /{number}/close` → closeIssue, `POST /{number}/comments` → addComment, `POST /{number}/labels` → applyLabel, `DELETE /{number}/labels/{labelId}` → removeLabel
+    - [x] 11.7 Write `IssueControllerIT` (Testcontainers): create issue, add comment (verify notification created), apply label, apply non-existent label → 422, close issue (verify webhook triggered), unauthorized update → 403
 
-- [ ] 12. Webhook Module
+- [-] 12. Webhook Module
   - **Requirement**: Req 12
   - **Design section**: Backend Package Structure
   - Sub-tasks:
