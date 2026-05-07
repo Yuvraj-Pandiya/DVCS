@@ -195,16 +195,16 @@
     - [x] 17.6 Implement `ProtectedRoute` component: wraps routes requiring authentication; redirects to `/login` if `AuthContext.accessToken` is null
     - [x] 17.7 Implement `NotificationBell` component (`src/components/NotificationBell.tsx`) and `useNotifications` hook (`src/hooks/useNotifications.ts`): connect to STOMP endpoint `/ws/notifications` using `@stomp/stompjs`; subscribe to `/user/queue/notifications`; maintain unread count in state; display badge; on click show dropdown list of recent notifications
 
-- [ ] 18. React Frontend — Auth & User Pages
+- [x] 18. React Frontend — Auth & User Pages
   - **Requirement**: Req 20
   - **Design section**: Frontend Architecture / Route Map
   - Sub-tasks:
-    - [~] 18.1 Implement `LoginPage` (`src/pages/LoginPage.tsx`) at route `/login`: controlled form with username and password fields, submit calls `AuthContext.login()`, on success redirect to `/`, display error message on 401
-    - [~] 18.2 Implement `RegisterPage` (`src/pages/RegisterPage.tsx`) at route `/register`: controlled form with username, email, password, confirm-password fields, submit POST `/api/auth/register`, on 201 redirect to `/login`, display field-level errors from 400 response
-    - [~] 18.3 Implement `UserProfilePage` (`src/pages/UserProfilePage.tsx`) at route `/:owner`: fetch user data via `GET /api/users/:owner`, display avatar, bio, public repo list (cards with name/description/star count), activity feed (recent commits/PRs/issues)
-    - [~] 18.4 Implement `UserSettingsPage` (`src/pages/UserSettingsPage.tsx`) at route `/settings` (protected): tabs for Profile (edit avatar URL, bio), SSH Keys (list + add + delete), Personal Access Tokens (list + create + revoke); each tab uses React Query mutations
-    - [~] 18.5 Implement `LandingPage` (`src/pages/LandingPage.tsx`) at route `/`: hero section with headline and CTA buttons (Get Started → `/register`, Explore → `/explore`), feature highlights grid (Git transport, PR reviews, CI/CD, real-time notifications)
-    - [~] 18.6 Implement `ExplorePage` (`src/pages/ExplorePage.tsx`) at route `/explore`: search bar wired to `GET /api/search?q=&type=repositories`, display trending public repos (sorted by recent push), debounced search results
+    - [x] 18.1 Implement `LoginPage` (`src/pages/LoginPage.tsx`) at route `/login`: controlled form with username and password fields, submit calls `AuthContext.login()`, on success redirect to `/`, display error message on 401
+    - [x] 18.2 Implement `RegisterPage` (`src/pages/RegisterPage.tsx`) at route `/register`: controlled form with username, email, password, confirm-password fields, submit POST `/api/auth/register`, on 201 redirect to `/login`, display field-level errors from 400 response
+    - [x] 18.3 Implement `UserProfilePage` (`src/pages/UserProfilePage.tsx`) at route `/:owner`: fetch user data via `GET /api/users/:owner`, display avatar, bio, public repo list (cards with name/description/star count), activity feed (recent commits/PRs/issues)
+    - [x] 18.4 Implement `UserSettingsPage` (`src/pages/UserSettingsPage.tsx`) at route `/settings` (protected): tabs for Profile (edit avatar URL, bio), SSH Keys (list + add + delete), Personal Access Tokens (list + create + revoke); each tab uses React Query mutations
+    - [x] 18.5 Implement `LandingPage` (`src/pages/LandingPage.tsx`) at route `/`: hero section with headline and CTA buttons (Get Started → `/register`, Explore → `/explore`), feature highlights grid (Git transport, PR reviews, CI/CD, real-time notifications)
+    - [x] 18.6 Implement `ExplorePage` (`src/pages/ExplorePage.tsx`) at route `/explore`: search bar wired to `GET /api/search?q=&type=repositories`, display trending public repos (sorted by recent push), debounced search results
 
 - [ ] 19. React Frontend — Repository Browser
   - **Requirement**: Req 21
