@@ -12,7 +12,7 @@
     - [x] 1.6 Write `frontend/nginx.conf` with reverse-proxy rules (`/api/*` → `backend:8080`, `/ws/*` → `backend:8080` with WebSocket upgrade), gzip compression, and SPA fallback (`try_files $uri /index.html`)
     - [x] 1.7 Write `.env.example` documenting all required environment variables: `POSTGRES_*`, `REDIS_*`, `MINIO_*`, `JWT_SECRET`, `JWT_EXPIRY_SECONDS`, `REFRESH_TOKEN_EXPIRY_DAYS`, `STORAGE_BACKEND`, `STORAGE_ROOT`, `S3_ENDPOINT`, `S3_BUCKET`, `CORS_ALLOWED_ORIGINS`
 
-- [ ] 2. Database Schema & Migrations (Flyway)
+- [x] 2. Database Schema & Migrations (Flyway)
   - **Requirement**: Req 1–17 (all entities)
   - **Design section**: Database Schema
   - Sub-tasks:
@@ -20,7 +20,7 @@
     - [x] 2.2 Write `src/main/resources/db/migration/V2__seed_data.sql` inserting default label colors (`bug`, `enhancement`, `documentation`, `question`) for use in tests and demos
     - [x] 2.3 Add Flyway dependency to `pom.xml` and configure `spring.flyway.locations`, `spring.flyway.baseline-on-migrate`, and datasource properties in `src/main/resources/application.yml`
 
-- [ ] 3. Auth Module
+- [x] 3. Auth Module
   - **Requirement**: Req 1, Req 2, Req 16, Req 18
   - **Design section**: Authentication & Security Design
   - Sub-tasks:
@@ -36,7 +36,7 @@
     - [x] 3.10 Implement `SecurityConfig` (`@Configuration @EnableWebSecurity`): define filter chain ordering (RateLimitFilter → JwtAuthenticationFilter → PersonalTokenFilter), disable CSRF for `/api/**`, configure CORS from `CORS_ALLOWED_ORIGINS` env var, permit `/api/auth/**` and public repo reads without authentication
     - [x] 3.11 Write `AuthServiceTest` (JUnit 5 + Mockito) covering: register success returns saved user, register with duplicate username throws `ConflictException`, login with valid credentials returns tokens, login with wrong password throws `UnauthorizedException`, refresh with valid token rotates and returns new tokens
 
-- [ ] 4. Git Object Storage Engine
+- [x] 4. Git Object Storage Engine
   - **Requirement**: Req 4, Req 7, Req 19
   - **Design section**: Git Object Storage Engine
   - Sub-tasks:
@@ -260,7 +260,7 @@
     - [x] 23.3 Write `k6/pr_merge.js`: 10 virtual users × 5 minutes — each iteration creates a PR via `POST /api/repos/{owner}/{repo}/pulls`, submits an APPROVE review, then merges via `POST /pulls/{id}/merge?strategy=squash`; assert p95 < 5000ms
     - [x] 23.4 Write `k6/thresholds.js`: shared threshold configuration module exporting `{ http_req_duration: ['p(95)<2000'], http_req_failed: ['rate<0.01'] }` imported by all scenario scripts
 
-- [ ] 24. OpenAPI Documentation & README
+- [x] 24. OpenAPI Documentation & README
   - **Requirement**: Req 1–22 (documentation)
   - **Design section**: Backend Package Structure
   - Sub-tasks:
@@ -268,4 +268,4 @@
     - [x] 24.2 Add `@Schema` annotations to all request DTOs (`CreateRepoRequest`, `CreatePrRequest`, `CreateIssueRequest`, `RegisterRequest`, `LoginRequest`, etc.) and response DTOs with field descriptions and example values
     - [x] 24.3 Add `@Operation(summary=...)` and `@ApiResponse(responseCode=..., description=...)` annotations to every `@RequestMapping` method in all controllers (AuthController, RepoController, BranchController, CommitController, TreeController, BlobController, DiffController, PullRequestController, IssueController, WebhookController, PipelineController, NotificationController, SearchController, GitTransportController)
     - [x] 24.4 Verify `/api/docs` returns OpenAPI 3 JSON and `/api/swagger-ui` renders the Swagger UI by adding a smoke test in `OpenApiIT` (Testcontainers) that asserts HTTP 200 on both endpoints
-    - [~] 24.5 Write `README.md` at repository root covering: prerequisites (Java 21, Node 20, Docker, git), local development setup (`./mvnw spring-boot:run` + `npm run dev`), Docker Compose setup (`docker compose up --build`), first-push walkthrough (`git clone http://localhost/api/git/alice/myrepo`, `echo "hello" > README.md`, `git add . && git commit -m "init" && git push`), environment variable reference table (name, description, default value for each variable in `.env.example`)
+    - [x] 24.5 Write `README.md` at repository root covering: prerequisites (Java 21, Node 20, Docker, git), local development setup (`./mvnw spring-boot:run` + `npm run dev`), Docker Compose setup (`docker compose up --build`), first-push walkthrough (`git clone http://localhost/api/git/alice/myrepo`, `echo "hello" > README.md`, `git add . && git commit -m "init" && git push`), environment variable reference table (name, description, default value for each variable in `.env.example`)
