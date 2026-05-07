@@ -4,15 +4,16 @@
  * Displays:
  * - PR metadata: title, description, status, branches
  * - DiffViewer component showing changes
- * - Review timeline with reviews and comments
- * - Inline comment support
- * - Merge controls (merge button with strategy selection)
+ * - PullRequestTimeline: commits, reviews, comments, and merge events in
+ *   chronological order
+ * - Review submit form (verdict selector + comment textarea)
+ * - Merge controls (strategy selector: merge commit / squash / rebase,
+ *   merge button disabled if not mergeable)
  *
  * Features:
  * - Submit review (approve, request changes, comment)
  * - Add inline comments on diff lines
  * - Merge PR with strategy selection (merge, squash, rebase)
- * - Close/reopen PR
  * - Loading states and error handling
  */
 
@@ -23,6 +24,13 @@ import DiffViewer, { DiffHunk } from '../components/DiffViewer'
 import { useState } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface CommitSummaryDto {
+  sha: string
+  message: string
+  authorUsername: string
+  authoredAt: string
+}
 
 interface PullRequestDetailDto {
   id: number
@@ -37,6 +45,7 @@ interface PullRequestDetailDto {
   mergedAt: string | null
   createdAt: string
   diff: DiffHunk[]
+  commits: CommitSummaryDto[]
   reviews: ReviewDto[]
   comments: CommentDto[]
 }
@@ -52,6 +61,7 @@ interface ReviewDto {
 
 interface CommentDto {
   id: number
+  prId: number
   authorId: number
   authorUsername: string
   body: string
@@ -104,90 +114,220 @@ function StatusBadge({ status }: StatusBadgeProps) {
   )
 }
 
-// ─── ReviewTimeline Component ─────────────────────────────────────────────────
+// ─── PullRequestTimeline Component ───────────────────────────────────────────
+//
+// Renders commits, reviews, comments, and merge events in chronological order.
 
-interface ReviewTimelineProps {
-  reviews: ReviewDto[]
-  comments: CommentDto[]
+interface PullRequestTimelineProps {
+  pr: PullRequestDetailDto
+  owner: string
+  repo: string
 }
 
-function ReviewTimeline({ reviews, comments }: ReviewTimelineProps) {
-  // Combine and sort reviews and comments by timestamp
-  const timeline = [
-    ...reviews.map((r) => ({ type: 'review' as const, data: r, timestamp: r.submittedAt })),
-    ...comments.map((c) => ({ type: 'comment' as const, data: c, timestamp: c.createdAt })),
+function PullRequestTimeline({ pr, owner, repo }: PullRequestTimelineProps) {
+  // Build a unified timeline from all event types
+  type TimelineItem =
+    | { type: 'commit'; data: CommitSummaryDto; timestamp: string }
+    | { type: 'review'; data: ReviewDto; timestamp: string }
+    | { type: 'comment'; data: CommentDto; timestamp: string }
+    | { type: 'merge'; mergedAt: string; timestamp: string }
+
+  const items: TimelineItem[] = [
+    // Commits
+    ...(pr.commits ?? []).map(
+      (c): TimelineItem => ({ type: 'commit', data: c, timestamp: c.authoredAt })
+    ),
+    // Reviews
+    ...pr.reviews.map(
+      (r): TimelineItem => ({ type: 'review', data: r, timestamp: r.submittedAt })
+    ),
+    // Comments (general, not inline diff comments)
+    ...pr.comments
+      .filter((c) => !c.filePath)
+      .map((c): TimelineItem => ({ type: 'comment', data: c, timestamp: c.createdAt })),
+    // Merge event
+    ...(pr.status === 'merged' && pr.mergedAt
+      ? [{ type: 'merge' as const, mergedAt: pr.mergedAt, timestamp: pr.mergedAt }]
+      : []),
   ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 
-  if (timeline.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 text-center">
-        <p className="text-sm text-gray-500">No reviews or comments yet.</p>
+        <p className="text-sm text-gray-500">No activity yet.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      {timeline.map((item, index) => {
-        if (item.type === 'review') {
-          const review = item.data as ReviewDto
-          const verdictConfig = {
-            APPROVE: { label: 'approved', className: 'text-green-400', icon: '✓' },
-            CHANGES_REQUESTED: { label: 'requested changes', className: 'text-red-400', icon: '✗' },
-            COMMENT: { label: 'commented', className: 'text-gray-400', icon: '💬' },
-          }
-          const { label, className, icon } = verdictConfig[review.verdict]
+    <div className="relative">
+      {/* Vertical timeline line */}
+      <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-700" aria-hidden="true" />
 
-          return (
-            <div key={`review-${review.id}`} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-semibold text-xs select-none">
-                    {getInitials(review.reviewerUsername)}
-                  </span>
+      <div className="space-y-4 pl-12">
+        {items.map((item, index) => {
+          // ── Commit event ──────────────────────────────────────────────────
+          if (item.type === 'commit') {
+            const commit = item.data
+            const shortSha = commit.sha.slice(0, 7)
+            return (
+              <div key={`commit-${commit.sha}-${index}`} className="relative">
+                {/* Timeline dot */}
+                <div className="absolute -left-[2.125rem] top-2 w-4 h-4 rounded-full bg-gray-700 border-2 border-gray-500 flex items-center justify-center">
+                  <svg
+                    className="w-2 h-2 text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z" />
+                  </svg>
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm mb-1">
-                    <span className="font-semibold text-gray-200">{review.reviewerUsername}</span>{' '}
-                    <span className={className}>
-                      {icon} {label}
-                    </span>{' '}
-                    <span className="text-gray-500">{formatRelativeTime(review.submittedAt)}</span>
+                <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-300 truncate">{commit.message}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      <span className="text-gray-400">{commit.authorUsername}</span>
+                      {' committed '}
+                      <Link
+                        to={`/${owner}/${repo}/commit/${commit.sha}`}
+                        className="font-mono text-indigo-400 hover:text-indigo-300 transition-colors"
+                      >
+                        {shortSha}
+                      </Link>
+                      {' · '}
+                      {formatRelativeTime(commit.authoredAt)}
+                    </p>
                   </div>
-                  {review.body && (
-                    <div className="text-sm text-gray-300 mt-2 whitespace-pre-wrap">{review.body}</div>
-                  )}
                 </div>
               </div>
-            </div>
-          )
-        } else {
-          const comment = item.data as CommentDto
-          return (
-            <div key={`comment-${comment.id}`} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-semibold text-xs select-none">
-                    {getInitials(comment.authorUsername)}
-                  </span>
+            )
+          }
+
+          // ── Review event ──────────────────────────────────────────────────
+          if (item.type === 'review') {
+            const review = item.data
+            const verdictConfig = {
+              APPROVE: {
+                label: 'approved these changes',
+                dotClass: 'bg-green-700 border-green-500',
+                iconClass: 'text-green-400',
+                icon: (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                ),
+              },
+              CHANGES_REQUESTED: {
+                label: 'requested changes',
+                dotClass: 'bg-red-800 border-red-600',
+                iconClass: 'text-red-400',
+                icon: (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ),
+              },
+              COMMENT: {
+                label: 'commented',
+                dotClass: 'bg-gray-700 border-gray-500',
+                iconClass: 'text-gray-400',
+                icon: (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                ),
+              },
+            }
+            const { label, dotClass, iconClass, icon } = verdictConfig[review.verdict]
+
+            return (
+              <div key={`review-${review.id}`} className="relative">
+                {/* Timeline dot */}
+                <div
+                  className={`absolute -left-[2.125rem] top-2 w-4 h-4 rounded-full border-2 flex items-center justify-center ${dotClass}`}
+                >
+                  <span className={iconClass}>{icon}</span>
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm mb-1">
-                    <span className="font-semibold text-gray-200">{comment.authorUsername}</span>{' '}
-                    <span className="text-gray-500">commented {formatRelativeTime(comment.createdAt)}</span>
-                    {comment.filePath && (
-                      <span className="text-xs text-gray-600 ml-2">
-                        on {comment.filePath}:{comment.lineNumber}
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-semibold text-xs select-none">
+                        {getInitials(review.reviewerUsername)}
                       </span>
-                    )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm mb-1">
+                        <span className="font-semibold text-gray-200">{review.reviewerUsername}</span>{' '}
+                        <span className={iconClass}>{label}</span>{' '}
+                        <span className="text-gray-500">{formatRelativeTime(review.submittedAt)}</span>
+                      </div>
+                      {review.body && (
+                        <div className="text-sm text-gray-300 mt-2 whitespace-pre-wrap bg-gray-900/50 rounded p-3 border border-gray-700">
+                          {review.body}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-300 mt-2 whitespace-pre-wrap">{comment.body}</div>
                 </div>
               </div>
-            </div>
-          )
-        }
-      })}
+            )
+          }
+
+          // ── Comment event ─────────────────────────────────────────────────
+          if (item.type === 'comment') {
+            const comment = item.data
+            return (
+              <div key={`comment-${comment.id}`} className="relative">
+                {/* Timeline dot */}
+                <div className="absolute -left-[2.125rem] top-2 w-4 h-4 rounded-full bg-purple-800 border-2 border-purple-600 flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-semibold text-xs select-none">
+                        {getInitials(comment.authorUsername)}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm mb-1">
+                        <span className="font-semibold text-gray-200">{comment.authorUsername}</span>{' '}
+                        <span className="text-gray-500">commented {formatRelativeTime(comment.createdAt)}</span>
+                      </div>
+                      <div className="text-sm text-gray-300 mt-2 whitespace-pre-wrap">{comment.body}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          // ── Merge event ───────────────────────────────────────────────────
+          if (item.type === 'merge') {
+            return (
+              <div key="merge-event" className="relative">
+                {/* Timeline dot */}
+                <div className="absolute -left-[2.125rem] top-2 w-4 h-4 rounded-full bg-purple-700 border-2 border-purple-500 flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+                <div className="bg-purple-900/20 border border-purple-700 rounded-lg px-4 py-3">
+                  <p className="text-sm text-purple-300">
+                    <span className="font-semibold">Pull request merged</span>{' '}
+                    <span className="text-purple-400">{formatRelativeTime(item.mergedAt)}</span>
+                  </p>
+                </div>
+              </div>
+            )
+          }
+
+          return null
+        })}
+      </div>
     </div>
   )
 }
@@ -285,13 +425,11 @@ function ReviewSubmitForm({ owner, repo, prNumber, onReviewSubmitted }: ReviewSu
 
 interface MergeControlsProps {
   pr: PullRequestDetailDto
-  owner: string
-  repo: string
   onMerge: (strategy: MergeStrategy) => void
   isMerging: boolean
 }
 
-function MergeControls({ pr, owner, repo, onMerge, isMerging }: MergeControlsProps) {
+function MergeControls({ pr, onMerge, isMerging }: MergeControlsProps) {
   const [strategy, setStrategy] = useState<MergeStrategy>('merge')
 
   if (pr.status !== 'open') {
@@ -494,19 +632,24 @@ export default function PullRequestDetailPage() {
               <h2 className="text-lg font-semibold text-gray-100 mb-4">Changes</h2>
               <DiffViewer 
                 hunks={pr.diff} 
-                comments={pr.comments}
+                comments={pr.comments.map((c) => ({
+                  ...c,
+                  filePath: c.filePath ?? undefined,
+                  lineNumber: c.lineNumber ?? undefined,
+                }))}
                 owner={owner}
                 repo={repo}
                 prNumber={prNumber}
+                defaultMode="unified"
               />
             </div>
 
-            {/* Review timeline */}
+            {/* PR timeline: commits, reviews, comments, merge events */}
             <div>
               <h2 className="text-lg font-semibold text-gray-100 mb-4">
-                Reviews and comments
+                Activity
               </h2>
-              <ReviewTimeline reviews={pr.reviews} comments={pr.comments} />
+              <PullRequestTimeline pr={pr} owner={owner!} repo={repo!} />
             </div>
           </div>
 
@@ -527,8 +670,6 @@ export default function PullRequestDetailPage() {
             {/* Merge controls */}
             <MergeControls
               pr={pr}
-              owner={owner!}
-              repo={repo!}
               onMerge={(strategy) => mergeMutation.mutate(strategy)}
               isMerging={mergeMutation.isPending}
             />

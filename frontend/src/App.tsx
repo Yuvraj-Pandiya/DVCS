@@ -13,6 +13,8 @@ import CommitDetailPage from './pages/CommitDetailPage'
 import BranchListPage from './pages/BranchListPage'
 import PullRequestListPage from './pages/PullRequestListPage'
 import PullRequestDetailPage from './pages/PullRequestDetailPage'
+import IssueListPage from './pages/IssueListPage'
+import IssueDetailPage from './pages/IssueDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -48,6 +50,10 @@ function App() {
       <Route path="/:owner/:repo/pulls" element={<PullRequestListPage />} />
       {/* Pull request detail page */}
       <Route path="/:owner/:repo/pulls/:id" element={<PullRequestDetailPage />} />
+      {/* Issue list page */}
+      <Route path="/:owner/:repo/issues" element={<IssueListPage />} />
+      {/* Issue detail page */}
+      <Route path="/:owner/:repo/issues/:id" element={<IssueDetailPage />} />
       {/* User profile — must come after all fixed-segment routes to avoid conflicts */}
       <Route path="/:owner" element={<UserProfilePage />} />
     </Routes>
