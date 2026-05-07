@@ -117,6 +117,24 @@ public class GlobalExceptionHandler {
     }
 
     // -------------------------------------------------------------------------
+    // 422 Unprocessable Entity — business rule violations
+    // -------------------------------------------------------------------------
+
+    @ExceptionHandler(com.dvcs.common.exception.InvalidRequestException.class)
+    public ResponseEntity<ErrorEnvelope> handleInvalidRequest(
+            com.dvcs.common.exception.InvalidRequestException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorEnvelope.of("INVALID_REQUEST", ex.getMessage()));
+    }
+
+    @ExceptionHandler(com.dvcs.common.exception.MergeConflictException.class)
+    public ResponseEntity<ErrorEnvelope> handleMergeConflict(
+            com.dvcs.common.exception.MergeConflictException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorEnvelope.of("MERGE_CONFLICT", ex.getMessage()));
+    }
+
+    // -------------------------------------------------------------------------
     // 500 Internal Server Error — catch-all
     // -------------------------------------------------------------------------
 

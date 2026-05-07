@@ -37,6 +37,7 @@ com\dvcs\common\exception\ConflictException.class
 com\dvcs\repository\domain\CommitMeta$CommitMetaBuilder.class
 com\dvcs\repository\domain\Repository$RepositoryBuilder.class
 com\dvcs\repository\service\GitObjectReaderService$TreeEntryInfo.class
+com\dvcs\common\exception\MergeConflictException.class
 com\dvcs\repository\controller\CommitController.class
 com\dvcs\auth\exception\ConflictException.class
 com\dvcs\common\security\PersonalTokenFilter.class
@@ -69,5 +70,6 @@ com\dvcs\repository\dto\CommitMetaDto.class
 com\dvcs\repository\domain\Repository.class
 com\dvcs\repository\repository\BranchRepository.class
 com\dvcs\repository\repository\RepoRepository.class
+com\dvcs\common\exception\InvalidRequestException.class
 com\dvcs\repository\dto\BlobDto.class
 com\dvcs\repository\service\BranchService.class

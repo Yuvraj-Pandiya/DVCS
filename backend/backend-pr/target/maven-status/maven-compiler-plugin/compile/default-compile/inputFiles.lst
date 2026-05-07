@@ -1,1 +1,16 @@
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\repository\PullRequestRepository.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\repository\PrCommentRepository.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\repository\PrReviewRepository.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\service\MergeStrategyService.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\AddCommentRequest.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\service\ReviewService.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\domain\PrReview.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\domain\PullRequest.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\service\NotificationPort.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\CreatePrRequest.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\PrDetailResponse.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\service\PullRequestService.java
 X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\package-info.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\controller\PullRequestController.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\domain\PrComment.java
+X:\DVCS\backend\backend-pr\src\main\java\com\dvcs\pullrequest\dto\SubmitReviewRequest.java

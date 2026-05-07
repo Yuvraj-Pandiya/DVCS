@@ -110,20 +110,20 @@
     - [x] 9.9 Write `MyersDiffTest` (JUnit 5): diff of two empty arrays returns empty list, diff of identical arrays returns only CONTEXT hunks, single-line change produces one hunk with one REMOVE + one ADD, multi-hunk diff on 50-line files, round-trip property `apply(A, diff(A,B)) == B` for 20 random string pairs
     - [x] 9.10 Write `ThreeWayMergeTest`: no-conflict auto-merge produces correct merged output, same-line conflict produces conflict markers, adjacent-line edits auto-merge without conflict
 
-- [-] 10. Pull Request Module
+- [x] 10. Pull Request Module
   - **Requirement**: Req 10, Req 12, Req 14
   - **Design section**: Pull Request Merge Strategies
   - Sub-tasks:
-    - [ ] 10.1 Create `PullRequest` JPA entity mapping `pull_requests` table; create `PullRequestRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`
-    - [ ] 10.2 Create `PrReview` JPA entity mapping `pr_reviews` table; create `PrReviewRepository` with `findByPrId(Long)` and `findLatestByPrIdAndReviewerId(Long, Long)`
-    - [ ] 10.3 Create `PrComment` JPA entity mapping `pr_comments` table; create `PrCommentRepository` with `findByPrIdOrderByCreatedAtAsc(Long)`
-    - [ ] 10.4 Implement `PullRequestService`: `openPr(userId, repoId, CreatePrRequest)` (validate head≠base, compute initial diff via `DiffService`, return 201), `listPrs(repoId, status, pageable)`, `getPrDetail(repoId, prNumber)` (metadata + diff + timeline), `updateDiffOnPush(repoId, branchName)` (recompute diff for all open PRs with matching head branch)
-    - [ ] 10.5 Implement `ReviewService`: `submitReview(userId, prId, verdict, body)` (save `PrReview`, notify PR author via `NotificationService`), `isMergeable(prId): boolean` (at least one APPROVE, no unresolved CHANGES_REQUESTED)
-    - [ ] 10.6 Implement `MergeStrategyService`: `findLCA(repoId, sha1, sha2): String` (BFS on `commits_meta` parent graph), `mergeCommit(repoId, pr, requesterId)`, `squashMerge(repoId, pr, requesterId)`, `rebaseMerge(repoId, pr, requesterId)` — each calls `ThreeWayMerge`, writes new objects via `ObjectStoreService`, updates `branches.head_sha`, marks PR merged, triggers webhook + notification
-    - [ ] 10.7 Implement `PullRequestController` (`@RequestMapping("/api/repos/{owner}/{repo}/pulls")`): `POST /` → openPr, `GET /` → listPrs, `GET /{id}` → getPrDetail, `POST /{id}/review` → submitReview, `POST /{id}/merge?strategy=` → merge (check `ReviewService.isMergeable`, return 422 if not), `POST /{id}/comments` → addComment
-    - [ ] 10.8 Write `PullRequestControllerIT` (Testcontainers): open PR, submit APPROVE review, merge with merge-commit strategy, verify base branch updated; open PR, submit CHANGES_REQUESTED, attempt merge → 422; open PR with conflicting changes, attempt merge → 422 with conflict details; test squash and rebase strategies
+    - [x] 10.1 Create `PullRequest` JPA entity mapping `pull_requests` table; create `PullRequestRepository` with `findByRepoIdAndStatus(Long, String, Pageable)` and `findByRepoIdAndNumber(Long, Integer)`
+    - [x] 10.2 Create `PrReview` JPA entity mapping `pr_reviews` table; create `PrReviewRepository` with `findByPrId(Long)` and `findLatestByPrIdAndReviewerId(Long, Long)`
+    - [x] 10.3 Create `PrComment` JPA entity mapping `pr_comments` table; create `PrCommentRepository` with `findByPrIdOrderByCreatedAtAsc(Long)`
+    - [x] 10.4 Implement `PullRequestService`: `openPr(userId, repoId, CreatePrRequest)` (validate head≠base, compute initial diff via `DiffService`, return 201), `listPrs(repoId, status, pageable)`, `getPrDetail(repoId, prNumber)` (metadata + diff + timeline), `updateDiffOnPush(repoId, branchName)` (recompute diff for all open PRs with matching head branch)
+    - [x] 10.5 Implement `ReviewService`: `submitReview(userId, prId, verdict, body)` (save `PrReview`, notify PR author via `NotificationService`), `isMergeable(prId): boolean` (at least one APPROVE, no unresolved CHANGES_REQUESTED)
+    - [x] 10.6 Implement `MergeStrategyService`: `findLCA(repoId, sha1, sha2): String` (BFS on `commits_meta` parent graph), `mergeCommit(repoId, pr, requesterId)`, `squashMerge(repoId, pr, requesterId)`, `rebaseMerge(repoId, pr, requesterId)` — each calls `ThreeWayMerge`, writes new objects via `ObjectStoreService`, updates `branches.head_sha`, marks PR merged, triggers webhook + notification
+    - [x] 10.7 Implement `PullRequestController` (`@RequestMapping("/api/repos/{owner}/{repo}/pulls")`): `POST /` → openPr, `GET /` → listPrs, `GET /{id}` → getPrDetail, `POST /{id}/review` → submitReview, `POST /{id}/merge?strategy=` → merge (check `ReviewService.isMergeable`, return 422 if not), `POST /{id}/comments` → addComment
+    - [x] 10.8 Write `PullRequestControllerIT` (Testcontainers): open PR, submit APPROVE review, merge with merge-commit strategy, verify base branch updated; open PR, submit CHANGES_REQUESTED, attempt merge → 422; open PR with conflicting changes, attempt merge → 422 with conflict details; test squash and rebase strategies
 
-- [ ] 11. Issues Module
+- [-] 11. Issues Module
   - **Requirement**: Req 11, Req 12, Req 14
   - **Design section**: Backend Package Structure
   - Sub-tasks:

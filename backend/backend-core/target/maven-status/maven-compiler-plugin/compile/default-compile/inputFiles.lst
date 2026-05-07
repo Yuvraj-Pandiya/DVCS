@@ -17,6 +17,7 @@ X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\repository\Branch
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\RefreshTokenRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\PersonalTokenRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\security\RepoAccessGuard.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\exception\MergeConflictException.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\service\RepoService.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\repository\UserRepository.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\dto\RepoDto.java
@@ -41,6 +42,7 @@ X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\controller\TreeCo
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\dto\TreeEntryDto.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\domain\RefreshToken.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\auth\exception\ConflictException.java
+X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\exception\InvalidRequestException.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\common\exception\PathTraversalException.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\domain\CommitMeta.java
 X:\DVCS\backend\backend-core\src\main\java\com\dvcs\repository\repository\CommitMetaRepository.java
