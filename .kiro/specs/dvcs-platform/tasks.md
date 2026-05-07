@@ -145,14 +145,14 @@
     - [x] 12.4 Implement `WebhookController` (`@RequestMapping("/api/repos/{owner}/{repo}/webhooks")`): `POST /` → createWebhook, `GET /` → listWebhooks, `PATCH /{id}` → updateWebhook, `DELETE /{id}` → deleteWebhook, `POST /{id}/test` → deliver synthetic ping payload and return delivery result
     - [x] 12.5 Write `WebhookControllerIT` (Testcontainers + WireMock): create webhook, trigger push event, verify WireMock received POST with correct `X-Hub-Signature-256` header, simulate 500 response and verify 3 retry attempts, test endpoint delivers ping
 
-- [ ] 13. CI/CD Pipeline Engine
+- [x] 13. CI/CD Pipeline Engine
   - **Requirement**: Req 13, Req 14
   - **Design section**: CI/CD Pipeline Engine Design
   - Sub-tasks:
-    - [ ] 13.1 Create `PipelineRun` JPA entity mapping `pipeline_runs` table with `status` (PENDING/RUNNING/SUCCESS/FAILURE), `stagesJson` (JSONB mapped to `String`), `startedAt`, `finishedAt`; create `PipelineRunRepository` with `findByRepoIdOrderByCreatedAtDesc(Long, Pageable)` and `findByRepoIdAndCommitSha(Long, String)`
-    - [ ] 13.2 Implement `PipelineEngine` (`@Service`): `@Async @EventListener(PushEvent.class)` method `onPush(PushEvent)` — create `PipelineRun` (PENDING), update to RUNNING, execute build stage (`Thread.sleep` 1–3s, 10% `Random` failure), if build SUCCESS execute test stage (`Thread.sleep` 2–5s, 15% failure), set final status, set `finishedAt`, save; call `notifyOpenPRs(run)` to update PR pipeline status display
-    - [ ] 13.3 Implement `PipelineController` (`@RequestMapping("/api/repos/{owner}/{repo}/pipelines")`): `GET /` → paginated list of `PipelineRun` DTOs, `GET /api/pipelines/{id}` → full run detail including `stagesJson` parsed to stage list
-    - [ ] 13.4 Write `PipelineControllerIT` (Testcontainers): trigger push event, poll pipeline list until status is SUCCESS or FAILURE (max 30s), verify stages JSON contains build and test entries with timing
+    - [x] 13.1 Create `PipelineRun` JPA entity mapping `pipeline_runs` table with `status` (PENDING/RUNNING/SUCCESS/FAILURE), `stagesJson` (JSONB mapped to `String`), `startedAt`, `finishedAt`; create `PipelineRunRepository` with `findByRepoIdOrderByCreatedAtDesc(Long, Pageable)` and `findByRepoIdAndCommitSha(Long, String)`
+    - [x] 13.2 Implement `PipelineEngine` (`@Service`): `@Async @EventListener(PushEvent.class)` method `onPush(PushEvent)` — create `PipelineRun` (PENDING), update to RUNNING, execute build stage (`Thread.sleep` 1–3s, 10% `Random` failure), if build SUCCESS execute test stage (`Thread.sleep` 2–5s, 15% failure), set final status, set `finishedAt`, save; call `notifyOpenPRs(run)` to update PR pipeline status display
+    - [x] 13.3 Implement `PipelineController` (`@RequestMapping("/api/repos/{owner}/{repo}/pipelines")`): `GET /` → paginated list of `PipelineRun` DTOs, `GET /api/pipelines/{id}` → full run detail including `stagesJson` parsed to stage list
+    - [x] 13.4 Write `PipelineControllerIT` (Testcontainers): trigger push event, poll pipeline list until status is SUCCESS or FAILURE (max 30s), verify stages JSON contains build and test entries with timing
 
 - [ ] 14. Notification Module & WebSocket
   - **Requirement**: Req 14

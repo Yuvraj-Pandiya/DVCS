@@ -1,0 +1,3 @@
+com\dvcs\PipelineTestApplication.class
+com\dvcs\AbstractPipelineIntegrationTest.class
+com\dvcs\pipeline\PipelineControllerIT.class
