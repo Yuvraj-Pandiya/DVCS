@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * <p>Requirement 5: Branch and Tag Reference Management.
  */
-@Repository
+@Repository("gitBranchRepository")
 public interface BranchRepository extends JpaRepository<Branch, Long> {
 
     /**

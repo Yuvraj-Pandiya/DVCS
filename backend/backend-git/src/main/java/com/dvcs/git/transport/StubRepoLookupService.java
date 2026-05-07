@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
  * <p><strong>This class must be replaced by a real implementation in task 7.1.</strong>
  */
 @Service
-@ConditionalOnMissingBean(RepoLookupService.class)
 public class StubRepoLookupService implements RepoLookupService {
 
     /**

@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * <p>Requirement 6: HTTP Smart Git Transport — commit metadata persistence on push.
  */
-@Repository
+@Repository("gitCommitMetaRepository")
 public interface CommitMetaRepository extends JpaRepository<CommitMeta, Long> {
 
     /**

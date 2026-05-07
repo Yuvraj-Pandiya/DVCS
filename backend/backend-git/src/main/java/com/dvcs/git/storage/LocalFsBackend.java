@@ -1,7 +1,7 @@
 package com.dvcs.git.storage;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.nio.file.StandardOpenOption;
  * regular move on platforms that do not support atomic rename).
  */
 @Component
-@ConditionalOnMissingBean(ObjectStoreBackend.class)
+@ConditionalOnProperty(name = "storage.backend", havingValue = "local", matchIfMissing = true)
 public class LocalFsBackend implements ObjectStoreBackend {
 
     private final Path storageRoot;
