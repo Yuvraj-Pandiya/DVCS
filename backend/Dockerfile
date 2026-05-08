@@ -34,7 +34,8 @@ COPY backend-notification/src backend-notification/src
 COPY backend-search/src backend-search/src
 
 # Build the application (skip tests for faster builds)
-RUN mvn package -DskipTests -B
+# NOTE: -DskipTests still compiles tests; use maven.test.skip to avoid testCompile.
+RUN mvn package -Dmaven.test.skip=true -B
 
 # ─────────────────────────────────────────────────────────────────
 # Stage 2: Runtime — Eclipse Temurin JRE 21 (Alpine)
