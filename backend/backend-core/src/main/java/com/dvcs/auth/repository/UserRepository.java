@@ -28,4 +28,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return an {@link Optional} containing the matching user, or empty if none found
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * Searches users by username or bio.
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(u.bio) LIKE LOWER(CONCAT('%', :query, '%'))")
+    org.springframework.data.domain.Page<User> searchUsers(@org.springframework.data.repository.query.Param("query") String query, org.springframework.data.domain.Pageable pageable);
 }

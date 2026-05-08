@@ -106,7 +106,7 @@ public class AuthController {
         setRefreshTokenCookie(response, authResponse.refreshToken(), REFRESH_TOKEN_MAX_AGE);
 
         // Return only the access token in the body; refresh token is in the cookie
-        AuthResponse bodyResponse = new AuthResponse(authResponse.accessToken(), null);
+        AuthResponse bodyResponse = new AuthResponse(authResponse.accessToken(), null, authResponse.user());
         return ResponseEntity.ok(bodyResponse);
     }
 
@@ -142,7 +142,7 @@ public class AuthController {
         setRefreshTokenCookie(response, authResponse.refreshToken(), REFRESH_TOKEN_MAX_AGE);
 
         // Return only the access token in the body; refresh token is in the cookie
-        AuthResponse bodyResponse = new AuthResponse(authResponse.accessToken(), null);
+        AuthResponse bodyResponse = new AuthResponse(authResponse.accessToken(), null, authResponse.user());
         return ResponseEntity.ok(bodyResponse);
     }
 

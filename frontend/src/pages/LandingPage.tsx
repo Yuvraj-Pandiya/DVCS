@@ -10,7 +10,8 @@
  * Theme: TailwindCSS dark (bg-gray-950, indigo accents)
  */
 
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 // ─── Feature data ─────────────────────────────────────────────────────────────
 
@@ -185,6 +186,20 @@ function TerminalSnippet() {
 // ─── LandingPage ──────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const { isAuthenticated, user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
+  }
+
+  if (isAuthenticated && user) {
+    return <Navigate to={`/${user.username}`} replace />
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
       {/* ── Nav ─────────────────────────────────────────────────────────── */}

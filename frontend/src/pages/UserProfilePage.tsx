@@ -338,27 +338,6 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
-      {/* Top nav bar */}
-      <header className="border-b border-gray-800 bg-gray-900">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-white font-bold text-lg hover:text-indigo-400 transition-colors"
-            aria-label="DVCS home"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-6 h-6 text-indigo-400"
-              aria-hidden="true"
-            >
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 14.5v-5l-3 3-1.5-1.5 4.5-4.5 4.5 4.5-1.5 1.5-3-3v5h-1z" />
-            </svg>
-            <span>DVCS</span>
-          </Link>
-        </div>
-      </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">

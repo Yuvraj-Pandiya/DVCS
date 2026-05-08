@@ -53,6 +53,7 @@ public class RepoService {
     private final GitObjectRepository gitObjectRepository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
+    private final GitObjectWriterService gitObjectWriterService;
 
     public RepoService(RepoRepository repoRepository,
                        CollaboratorRepository collaboratorRepository,
@@ -60,7 +61,8 @@ public class RepoService {
                        CommitMetaRepository commitMetaRepository,
                        GitObjectRepository gitObjectRepository,
                        UserRepository userRepository,
-                       StringRedisTemplate redisTemplate) {
+                       StringRedisTemplate redisTemplate,
+                       GitObjectWriterService gitObjectWriterService) {
         this.repoRepository = repoRepository;
         this.collaboratorRepository = collaboratorRepository;
         this.branchRepository = branchRepository;
@@ -68,6 +70,7 @@ public class RepoService {
         this.gitObjectRepository = gitObjectRepository;
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
+        this.gitObjectWriterService = gitObjectWriterService;
     }
 
     // -------------------------------------------------------------------------
@@ -108,11 +111,32 @@ public class RepoService {
 
         repo = repoRepository.save(repo);
 
-        // Initialize default branch with empty SHA
+        String headSha = EMPTY_SHA;
+        if (request.autoInitialize()) {
+            try {
+                headSha = gitObjectWriterService.initializeRepo(repo.getId().toString(), owner.getUsername(), repo.getName());
+                
+                // Also create commit meta for the initial commit
+                com.dvcs.repository.domain.CommitMeta meta = com.dvcs.repository.domain.CommitMeta.builder()
+                        .repoId(repo.getId())
+                        .sha(headSha)
+                        .authorId(userId)
+                        .message("Initial commit")
+                        .authoredAt(java.time.OffsetDateTime.now())
+                        .committedAt(java.time.OffsetDateTime.now())
+                        .build();
+                commitMetaRepository.save(meta);
+            } catch (java.io.IOException e) {
+                log.error("Failed to auto-initialize repository {}: {}", repo.getId(), e.getMessage());
+                // Fallback to empty repo if initialization fails
+            }
+        }
+
+        // Initialize default branch
         Branch branch = Branch.builder()
                 .repoId(repo.getId())
                 .name(defaultBranch)
-                .headSha(EMPTY_SHA)
+                .headSha(headSha)
                 .isProtected(false)
                 .build();
         branchRepository.save(branch);
@@ -285,6 +309,27 @@ public class RepoService {
         collaboratorRepository.save(ownerCollab);
 
         return toDto(fork, forkingUser.getUsername());
+    }
+
+    /**
+     * Retrieves all repositories for a given user, enforcing visibility rules.
+     *
+     * @param requesterId the ID of the requesting user
+     * @param username    the username of the profile owner
+     * @return list of visible repositories
+     */
+    @Transactional(readOnly = true)
+    public List<RepoDto> getUserRepos(Long requesterId, String username) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+
+        List<Repository> repos = repoRepository.findByOwnerId(owner.getId());
+
+        return repos.stream()
+                .filter(repo -> !repo.isPrivate() ||
+                        (requesterId != null && collaboratorRepository.findByRepoIdAndUserId(repo.getId(), requesterId).isPresent()))
+                .map(repo -> toDto(repo, username))
+                .toList();
     }
 
     // -------------------------------------------------------------------------

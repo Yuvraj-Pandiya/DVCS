@@ -3,6 +3,7 @@ package com.dvcs.auth.service;
 import com.dvcs.auth.domain.RefreshToken;
 import com.dvcs.auth.domain.User;
 import com.dvcs.auth.dto.AuthResponse;
+import com.dvcs.auth.dto.UserResponse;
 import com.dvcs.auth.dto.LoginRequest;
 import com.dvcs.auth.dto.RegisterRequest;
 import com.dvcs.auth.exception.ConflictException;
@@ -111,7 +112,14 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user);
         String rawRefreshToken = generateAndPersistRefreshToken(user.getId());
 
-        return new AuthResponse(accessToken, rawRefreshToken);
+        UserResponse userResponse = new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getAvatarUrl()
+        );
+
+        return new AuthResponse(accessToken, rawRefreshToken, userResponse);
     }
 
     /**
@@ -147,7 +155,14 @@ public class AuthService {
         String newAccessToken = jwtUtil.generateAccessToken(user);
         String newRawRefreshToken = generateAndPersistRefreshToken(user.getId());
 
-        return new AuthResponse(newAccessToken, newRawRefreshToken);
+        UserResponse userResponse = new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getAvatarUrl()
+        );
+
+        return new AuthResponse(newAccessToken, newRawRefreshToken, userResponse);
     }
 
     // -------------------------------------------------------------------------

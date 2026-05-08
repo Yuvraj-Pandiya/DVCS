@@ -17,58 +17,80 @@ import IssueListPage from './pages/IssueListPage'
 import IssueDetailPage from './pages/IssueDetailPage'
 import RepoSettingsPage from './pages/RepoSettingsPage'
 import PipelineListPage from './pages/PipelineListPage'
+import CreateRepoPage from './pages/CreateRepoPage'
+import CreateIssuePage from './pages/CreateIssuePage'
+import CreatePullRequestPage from './pages/CreatePullRequestPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import AppShell from './components/layout/AppShell'
 
 function App() {
   return (
     <Routes>
+      {/* Public standalone pages */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      {/* Explore — must come before the /:owner catch-all */}
-      <Route path="/explore" element={<ExplorePage />} />
-      {/* Protected routes */}
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <UserSettingsPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Repository home page — must come before /:owner to avoid conflicts */}
-      <Route path="/:owner/:repo" element={<RepoHomePage />} />
-      {/* File tree page */}
-      <Route path="/:owner/:repo/tree/:ref/*" element={<FileTreePage />} />
-      {/* File blob page */}
-      <Route path="/:owner/:repo/blob/:ref/*" element={<FileBlobPage />} />
-      {/* Commit list page */}
-      <Route path="/:owner/:repo/commits/:ref" element={<CommitListPage />} />
-      {/* Commit detail page */}
-      <Route path="/:owner/:repo/commit/:sha" element={<CommitDetailPage />} />
-      {/* Branch list page */}
-      <Route path="/:owner/:repo/branches" element={<BranchListPage />} />
-      {/* Pull request list page */}
-      <Route path="/:owner/:repo/pulls" element={<PullRequestListPage />} />
-      {/* Pull request detail page */}
-      <Route path="/:owner/:repo/pulls/:id" element={<PullRequestDetailPage />} />
-      {/* Issue list page */}
-      <Route path="/:owner/:repo/issues" element={<IssueListPage />} />
-      {/* Issue detail page */}
-      <Route path="/:owner/:repo/issues/:id" element={<IssueDetailPage />} />
-      {/* Repo settings page — OWNER only, must come before /:owner catch-all */}
-      <Route
-        path="/:owner/:repo/settings"
-        element={
-          <ProtectedRoute>
-            <RepoSettingsPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Pipeline list page */}
-      <Route path="/:owner/:repo/pipelines" element={<PipelineListPage />} />
-      {/* User profile — must come after all fixed-segment routes to avoid conflicts */}
-      <Route path="/:owner" element={<UserProfilePage />} />
+
+      {/* Main app shell for functional pages */}
+      <Route element={<AppShell />}>
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route
+          path="/new"
+          element={
+            <ProtectedRoute>
+              <CreateRepoPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <UserSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Repository routes */}
+        <Route path="/:owner/:repo" element={<RepoHomePage />} />
+        <Route path="/:owner/:repo/tree/:ref/*" element={<FileTreePage />} />
+        <Route path="/:owner/:repo/blob/:ref/*" element={<FileBlobPage />} />
+        <Route path="/:owner/:repo/commits/:ref" element={<CommitListPage />} />
+        <Route path="/:owner/:repo/commit/:sha" element={<CommitDetailPage />} />
+        <Route path="/:owner/:repo/branches" element={<BranchListPage />} />
+        <Route path="/:owner/:repo/pulls" element={<PullRequestListPage />} />
+        <Route
+          path="/:owner/:repo/pulls/new"
+          element={
+            <ProtectedRoute>
+              <CreatePullRequestPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/:owner/:repo/pulls/:id" element={<PullRequestDetailPage />} />
+        <Route path="/:owner/:repo/issues" element={<IssueListPage />} />
+        <Route
+          path="/:owner/:repo/issues/new"
+          element={
+            <ProtectedRoute>
+              <CreateIssuePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/:owner/:repo/issues/:id" element={<IssueDetailPage />} />
+        <Route
+          path="/:owner/:repo/settings"
+          element={
+            <ProtectedRoute>
+              <RepoSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/:owner/:repo/pipelines" element={<PipelineListPage />} />
+
+        {/* User profile */}
+        <Route path="/:owner" element={<UserProfilePage />} />
+      </Route>
     </Routes>
   )
 }

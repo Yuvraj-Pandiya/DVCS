@@ -1,13 +1,12 @@
 # ─────────────────────────────────────────────────────────────────
 # Stage 1: Build — Maven + JDK 21
 # ─────────────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
 # Copy Maven wrapper and pom files first (for layer caching)
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
+COPY pom.xml ./
 COPY backend-core/pom.xml backend-core/pom.xml
 COPY backend-api/pom.xml backend-api/pom.xml
 COPY backend-git/pom.xml backend-git/pom.xml
@@ -20,7 +19,7 @@ COPY backend-notification/pom.xml backend-notification/pom.xml
 COPY backend-search/pom.xml backend-search/pom.xml
 
 # Download dependencies (cached layer if pom.xml unchanged)
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY backend-core/src backend-core/src
@@ -35,12 +34,15 @@ COPY backend-notification/src backend-notification/src
 COPY backend-search/src backend-search/src
 
 # Build the application (skip tests for faster builds)
-RUN ./mvnw package -DskipTests -B
+RUN mvn package -DskipTests -B
 
 # ─────────────────────────────────────────────────────────────────
-# Stage 2: Runtime — Distroless Java 21
+# Stage 2: Runtime — Eclipse Temurin JRE 21 (Alpine)
 # ─────────────────────────────────────────────────────────────────
-FROM gcr.io/distroless/java21-debian12
+FROM eclipse-temurin:21-jre-alpine
+
+# Install curl for healthchecks
+RUN apk add --no-cache curl
 
 WORKDIR /app
 

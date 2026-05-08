@@ -65,31 +65,17 @@ public class SearchService {
     public Page<RepositorySearchResult> searchRepositories(String query, Pageable pageable) {
         log.debug("Searching repositories with query: {}", query);
 
-        String pattern = "%" + query.toLowerCase() + "%";
+        Page<Repository> repoPage = repoRepository.searchPublicRepos(query, pageable);
 
-        // Find all public repositories matching the query
-        List<Repository> allRepos = repoRepository.findAll().stream()
-                .filter(r -> !r.isPrivate())
-                .filter(r -> matchesQuery(r, pattern))
-                .collect(Collectors.toList());
-
-        // Sort by name
-        allRepos.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
-
-        // Build owner username map
-        Map<Long, String> ownerUsernameMap = buildOwnerUsernameMap(allRepos);
-
-        // Apply pagination manually
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), allRepos.size());
-        List<Repository> pageRepos = allRepos.subList(start, end);
+        // Build owner username map for the current page
+        Map<Long, String> ownerUsernameMap = buildOwnerUsernameMap(repoPage.getContent());
 
         // Convert to DTOs
-        List<RepositorySearchResult> results = pageRepos.stream()
+        List<RepositorySearchResult> results = repoPage.getContent().stream()
                 .map(r -> toRepositorySearchResult(r, ownerUsernameMap.get(r.getOwnerId())))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, allRepos.size());
+        return new PageImpl<>(results, pageable, repoPage.getTotalElements());
     }
 
     /**
@@ -189,27 +175,14 @@ public class SearchService {
     public Page<UserSearchResult> searchUsers(String query, Pageable pageable) {
         log.debug("Searching users with query: {}", query);
 
-        String pattern = "%" + query.toLowerCase() + "%";
-
-        // Find all users matching the query
-        List<User> allUsers = userRepository.findAll().stream()
-                .filter(u -> matchesUserQuery(u, pattern))
-                .collect(Collectors.toList());
-
-        // Sort by username
-        allUsers.sort((a, b) -> a.getUsername().compareToIgnoreCase(b.getUsername()));
-
-        // Apply pagination manually
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), allUsers.size());
-        List<User> pageUsers = allUsers.subList(start, end);
+        Page<User> userPage = userRepository.searchUsers(query, pageable);
 
         // Convert to DTOs
-        List<UserSearchResult> results = pageUsers.stream()
+        List<UserSearchResult> results = userPage.getContent().stream()
                 .map(this::toUserSearchResult)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, allUsers.size());
+        return new PageImpl<>(results, pageable, userPage.getTotalElements());
     }
 
     // =========================================================================

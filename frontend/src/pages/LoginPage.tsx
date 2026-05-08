@@ -32,7 +32,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Recover the location the user was trying to visit before being redirected
-  const from = (location.state as LocationState)?.from?.pathname ?? '/'
+  const from = (location.state as LocationState)?.from?.pathname ?? null
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -40,8 +40,9 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login({ username, password })
-      navigate(from, { replace: true })
+      const loggedInUser = await login({ username, password })
+      // Navigate to the page they were trying to reach, or their profile directly
+      navigate(from ?? `/${username}`, { replace: true })
     } catch (err) {
       setError(
         err instanceof Error

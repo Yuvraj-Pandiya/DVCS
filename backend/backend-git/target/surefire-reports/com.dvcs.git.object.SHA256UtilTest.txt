@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dvcs.git.object.SHA256UtilTest
+-------------------------------------------------------------------------------
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in com.dvcs.git.object.SHA256UtilTest

@@ -92,6 +92,8 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
       S3_ENDPOINT:       http://minio:9000
       S3_BUCKET:         ${S3_BUCKET:-dvcs-objects}
+      S3_ACCESS_KEY:     ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY:     ${MINIO_ROOT_PASSWORD:-minioadmin}
       # Storage
       STORAGE_BACKEND:   ${STORAGE_BACKEND:-s3}
       STORAGE_ROOT:      ${STORAGE_ROOT:-/data/objects}

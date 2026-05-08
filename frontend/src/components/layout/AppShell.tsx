@@ -64,6 +64,15 @@ function UserMenu() {
           </div>
 
           <Link
+            to="/new"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors border-b border-gray-700"
+          >
+            New repository
+          </Link>
+
+          <Link
             to={`/${user.username}`}
             role="menuitem"
             onClick={() => setOpen(false)}

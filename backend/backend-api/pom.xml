@@ -121,7 +121,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <scope>test</scope>
+            <!-- <scope>test</scope> -->
         </dependency>
 
         <!-- Awaitility — for polling async operations in integration tests -->
@@ -130,6 +130,12 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--Missing Data Redis-->
+        <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
     </dependencies>
 
     <build>

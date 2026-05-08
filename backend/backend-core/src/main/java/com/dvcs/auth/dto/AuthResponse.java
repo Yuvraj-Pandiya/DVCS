@@ -14,5 +14,8 @@ public record AuthResponse(
 
         @Schema(description = "Long-lived refresh token (30-day expiry) used to obtain a new access token; also set as an HttpOnly cookie",
                 example = "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4gZXhhbXBsZQ==")
-        String refreshToken
+        String refreshToken,
+
+        @Schema(description = "User information")
+        UserResponse user
 ) {}

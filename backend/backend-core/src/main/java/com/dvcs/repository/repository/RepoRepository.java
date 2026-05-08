@@ -42,4 +42,10 @@ public interface RepoRepository extends JpaRepository<Repository, Long> {
     @Query("SELECT r FROM Repository r, com.dvcs.auth.domain.User u WHERE r.ownerId = u.id AND u.username = :ownerUsername AND r.name = :name")
     Optional<Repository> findByOwnerUsernameAndName(@Param("ownerUsername") String ownerUsername,
                                                      @Param("name") String name);
+
+    /**
+     * Searches public repositories by name or description.
+     */
+    @Query("SELECT r FROM Repository r WHERE r.isPrivate = false AND (LOWER(r.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(r.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    org.springframework.data.domain.Page<Repository> searchPublicRepos(@Param("query") String query, org.springframework.data.domain.Pageable pageable);
 }

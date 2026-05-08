@@ -207,7 +207,6 @@ export default function CommitGraph({ commits, onCommitClick }: CommitGraphProps
         <g>
           {edges.map((edge, i) => {
             // Cubic bezier curve for smooth edges
-            const dx = edge.to.x - edge.from.x
             const dy = edge.to.y - edge.from.y
             const controlOffset = Math.min(Math.abs(dy) / 2, 30)
 

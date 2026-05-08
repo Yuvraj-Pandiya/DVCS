@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -21,6 +21,9 @@ RUN npm run build
 # Stage 2: Runtime — nginx
 # ─────────────────────────────────────────────────────────────────
 FROM nginx:alpine
+
+# Install curl for healthchecks
+RUN apk add --no-cache curl
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html

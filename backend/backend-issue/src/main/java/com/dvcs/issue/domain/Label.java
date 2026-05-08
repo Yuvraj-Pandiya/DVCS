@@ -45,6 +45,6 @@ public class Label {
     /**
      * Hex colour code for the label, e.g. {@code #ff0000}.
      */
-    @Column(name = "color", nullable = false, columnDefinition = "CHAR(7)")
+    @Column(name = "color", nullable = false, length = 7)
     private String color;
 }

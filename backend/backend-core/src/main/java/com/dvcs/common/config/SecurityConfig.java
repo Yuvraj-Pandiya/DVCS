@@ -114,10 +114,13 @@ public class SecurityConfig {
                 // OpenAPI / Swagger UI — publicly accessible for developer convenience
                 .requestMatchers("/api/docs/**", "/api/docs.yaml", "/api/swagger-ui/**",
                         "/api/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                // Public read access for repos, git, and search (fine-grained control via @PreAuthorize)
+                // Actuator endpoints — allowed for health checks
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Public read access for repos, git, search, and user profiles
                 .requestMatchers(HttpMethod.GET, "/api/repos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/git/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/search/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 // Everything else requires authentication
                 .anyRequest().authenticated()
             )

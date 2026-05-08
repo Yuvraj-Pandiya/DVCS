@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider, useAuth } from './AuthContext'
@@ -233,7 +233,7 @@ describe('AuthContext', () => {
       await user.click(screen.getByRole('button', { name: 'login' }))
 
       await waitFor(() => {
-        const loginCall = fetchSpy.mock.calls.find(([url]) => String(url).includes('/api/auth/login'))
+        const loginCall = fetchSpy.mock.calls.find(({ url }: { url: string }) => String(url).includes('/api/auth/login'))
         expect(loginCall).toBeDefined()
         expect(loginCall![1]).toMatchObject({
           method: 'POST',
@@ -445,7 +445,7 @@ describe('AuthContext', () => {
       await user.click(screen.getByRole('button', { name: 'refresh' }))
 
       await waitFor(() => {
-        const refreshCall = fetchSpy.mock.calls.find(([url]) => String(url).includes('/api/auth/refresh'))
+        const refreshCall = fetchSpy.mock.calls.find(({ url }: { url: string }) => String(url).includes('/api/auth/refresh'))
         expect(refreshCall).toBeDefined()
         expect(refreshCall![1]).toMatchObject({
           method: 'POST',

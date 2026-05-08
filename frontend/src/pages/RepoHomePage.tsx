@@ -12,8 +12,8 @@
  */
 
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApiClient, ApiError } from '../api/client'
 import { marked } from 'marked'
 
@@ -377,23 +377,44 @@ export default function RepoHomePage() {
               )}
             </div>
 
-            {/* Clone button */}
-            <button
-              type="button"
-              onClick={() => setShowCloneModal(true)}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors text-sm font-medium"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4"
+            {/* Action buttons */}
+            <div className="flex-shrink-0 flex items-center gap-2">
+              {/* Fork button */}
+              <button
+                type="button"
+                onClick={() => forkMutation.mutate()}
+                disabled={forkMutation.isPending}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium disabled:opacity-50"
               >
-                <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
-                <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
-              </svg>
-              Clone
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path d="M12.23 2.06c-.33-.2-.74-.23-1.1-.06-.37.16-.63.5-.63.9v1.65c-2.48.33-4.5 2.35-4.83 4.83h-1.65c-.4 0-.74.26-.9.63-.17.36-.14.77.06 1.1l3 5c.2.33.56.53.94.53s.74-.2 1.1-.53l3-5c.2-.33.23-.74.06-1.1-.16-.37-.5-.63-.9-.63h-1.65c.33-2.48 2.35-4.5 4.83-4.83v1.65c0 .4.26.74.63.9.36.17.77.14 1.1-.06l5-3c.33-.2.53-.56.53-.94s-.2-.74-.53-1.1l-5-3Z" />
+                </svg>
+                {forkMutation.isPending ? 'Forking...' : 'Fork'}
+              </button>
+
+              {/* Clone button */}
+              <button
+                type="button"
+                onClick={() => setShowCloneModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors text-sm font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                  <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                </svg>
+                Clone
+              </button>
+            </div>
           </div>
 
           {/* Stats */}

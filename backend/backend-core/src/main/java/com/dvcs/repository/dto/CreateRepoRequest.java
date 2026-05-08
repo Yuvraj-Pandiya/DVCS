@@ -28,7 +28,11 @@ public record CreateRepoRequest(
 
         @Schema(description = "Name of the default branch; defaults to 'main' if not specified",
                 example = "main")
-        String defaultBranch
+        String defaultBranch,
+
+        @Schema(description = "Whether to auto-initialize the repository with an initial commit and README",
+                example = "true")
+        boolean autoInitialize
 ) {
     public String defaultBranch() {
         return defaultBranch != null ? defaultBranch : "main";

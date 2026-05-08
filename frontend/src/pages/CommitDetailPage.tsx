@@ -17,7 +17,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient, ApiError } from '../api/client'
-import DiffViewer, { DiffHunk, DiffLine } from '../components/DiffViewer'
+import DiffViewer, { DiffHunk } from '../components/DiffViewer'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
